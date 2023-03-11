@@ -16,42 +16,46 @@ return all flights fulfill the condition specified
 
 return object structure:
 {
-	to: {
-		airline_name,
-		flight_number,
-		departure_date,
-		departure_time,
-		departure_airport_code,
-		arrival_date,
-		arrival_time,
-		arrival_airport_code,
-		base_price,
-		airplane: {
-			id,
-			seat_number,
-			manufacturing_company,
-			manufacturing_date,
-			age
+	flights: [
+		{
+			to: {
+				airline_name,
+				flight_number,
+				departure_date,
+				departure_time,
+				departure_airport_code,
+				arrival_date,
+				arrival_time,
+				arrival_airport_code,
+				base_price,
+				airplane: {
+					id,
+					seat_number,
+					manufacturing_company,
+					manufacturing_date,
+					age
+				}
+			},
+			(if return_date is specified) from: {
+				airline_name,
+				flight_number,
+				departure_date,
+				departure_time,
+				departure_airport_code,
+				arrival_date,
+				arrival_time,
+				arrival_airport_code,
+				base_price,
+				airplane: {
+					id,
+					seat_number,
+					manufacturing_company,
+					manufacturing_date,
+					age
+				}
+			}
 		}
-	},
-	(if return_date is specified) from: {
-		airline_name,
-		flight_number,
-		departure_date,
-		departure_time,
-		departure_airport_code,
-		arrival_date,
-		arrival_time,
-		arrival_airport_code,
-		base_price,
-		airplane: {
-			id,
-			seat_number,
-			manufacturing_company,
-			manufacturing_date,
-			age
-		}
-	}
+	]
 }
 
 2. GET api/flight_status
