@@ -1,7 +1,7 @@
-from database import mydb
+from database import mydb_raw
 
 def main():
-    cursor = mydb.cursor()
+    cursor = mydb_raw.cursor()
 
     cursor.execute("""CREATE DATABASE
                         IF NOT EXISTS
@@ -13,10 +13,10 @@ def main():
     executeSQLFile(cursor, './database_init/DDL.sql')
     executeSQLFile(cursor, './database_init/inserts.sql')
     
-    mydb.commit()
+    mydb_raw.commit()
 
     cursor.close()
-    mydb.close()
+    mydb_raw.close()
 
 def executeSQLFile(cursor, filename):
     fd = open(filename, 'r')

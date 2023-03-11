@@ -1,5 +1,33 @@
-api routes:
-1. GET api/future_flight
+api overview:
+3. POST api/register
+4. POST api/login
+12. POST api/logout
+
+13. GET api/flights
+15. PUT api/flights
+2. GET api/flights/status
+16. POST api/flights/status
+1. GET api/flights/future
+5. GET api/flights/schedule
+20. GET api/flights/rating
+
+21. GET api/tickets
+6. GET api/tickets/price
+7. PUT api/tickets/register
+8. DELETE api/tickets/unregister
+
+10. GET api/comment
+9. PUT api/comment
+
+18. GET api/airplane
+17. PUT api/airplane
+
+11. GET api/spending
+14. GET api/customers
+19. PUT api/airport
+
+api detailed information:
+1. GET api/flights/future
 possible query parameters:
 	source_city
 	source_airport
@@ -58,7 +86,7 @@ return object structure:
 	]
 }
 
-2. GET api/flight_status
+2. GET api/flights/status
 possible query parameters:
 	airline_name
 	flight_number
@@ -138,7 +166,7 @@ return object structure:
 	msg: either "success" or "failed"
 }
 
-3. POST api/login
+4. POST api/login
 possible body parameters:
 {
 	user_type: (either 'customer' or 'staff')
@@ -154,9 +182,8 @@ return object structure: (together with session data)
 	msg: either "success" or "failed"
 }
 
-4. POST api/scheduled_flights
-possible body parameters:
-{
+5. GET api/flights/schedule
+possible query parameters:
 	email
 	start_date
 	end_date
@@ -164,7 +191,6 @@ possible body parameters:
 	destination_airport
 	source_city
 	source_airport
-}
 
 feature:
 NEEDS AUTHENTICATE
@@ -195,7 +221,7 @@ return object structure:
 	]
 }
 
-5. GET api/ticket_price
+6. GET api/tickets/price
 possible query parameters:
 	airline_name
 	flight_number
@@ -212,7 +238,7 @@ return object structure:
 }
 	
 
-6. POST api/purchase_ticket
+7. PUT api/tickets/register
 possible body parameters:
 {
 	type (either 'one-way' or 'round-trip')
@@ -253,7 +279,7 @@ return object structure:
 	msg: either 'success' or 'failed'
 }
 
-7. POST api/cancel_ticket
+8. DELETE api/tickets/unregister
 possible body parameters:
 {
 	email
@@ -272,7 +298,7 @@ return object structure:
 	msg: either 'success' or 'failed'
 }
 
-8. POST api/comment
+9. PUT api/comment
 possible body parameters:
 {
 	email
@@ -293,7 +319,7 @@ return object structure:
 	msg: either 'success' or 'failed'
 }
 
-9. GET api/comment
+10. GET api/comment
 NO AUTHENTICATION
 possible query parameters:
 	airline_name
@@ -311,7 +337,7 @@ return object structure:
 	]
 }
 
-10. GET api/spending
+11. GET api/spending
 no parameter
 
 feature:
@@ -328,7 +354,7 @@ return object structure:
 	]
 }
 
-11. POST api/logout
+12. POST api/logout
 no body parameter
 
 feature:
@@ -339,7 +365,7 @@ return object structure:
 	msg: either 'success' or 'failed'
 }
 
-12. GET api/flights
+13. GET api/flights
 possible query parameters:
 	airline
 	start_date
@@ -375,161 +401,21 @@ return object structure:
 	]
 }
 
-13. GET api/flight_customers
-possible query parameters:
-	airline_name
-	flight_number
-	arrival_date
-	departure_date
-
-feature:
-NEEDS AUTHENTICATION
-return all customer who registered for the flight
-
-return object structure:
-{
-	customers: [
-		{
-			email,
-			first_name,
-			last_name,
-			purchased_date
-		}
-	]
-}
-
-14. POST api/new_flight
-possible body parameters:
-{
-	airline_name,
-	flight_number,
-	departure_date,
-	departure_time,
-	departure_airport_code,
-	arrival_date,
-	arrival_time,
-	arrival_airport_code,
-	base_price,
-	airplane_id
-}
-
-feature:
-NEEDS AUTHENTICATION
-create a new flight
-
-return object structure:
-{
-	msg: either 'success' or 'failed'
-}
-
-15. POST api/flight_status
-possible body parameters:
-{
-	status
-	airline_name
-	flight_number
-	arrival_date
-	departure_date
-}
-
-feature:
-NEEDS AUTHENTICATION
-change the status of the flight
-
-return object structure:
-{
-	msg: either 'success' or 'failed'
-}
-
-16. POST api/airplane
-possible body parameters:
-{
-	airline_name,
-	ID,
-	seat_number,
-	manufacturing_company,
-	manufacturing_date,
-	age
-}
-
-feature:
-NEEDS AUTHENTICATION
-create a new airplane
-
-return object structure:
-{
-	msg: either 'success' or 'failed'
-}
-
-17. GET api/airplane
+14. GET api/customers
 possible query parameters:
 	airline
-
-feature:
-NEEDS AUTHENTICATION
-return airplanes that belong to the airline
-
-return object structure:
-{
-	airplanes: [
-		{
-			airline_name,
-			ID,
-			seat_number,
-			manufacturing_company,
-			manufacturing_date,
-			age
-		}
-	]
-}
-
-18. POST api/airport
-possible body parameters:
-{
-	code,
-	name,
-	city,
-	country,
-	airport_type
-}
-
-feature:
-NEEDS AUTHENTICATION
-create a new airport
-
-return object structure:
-{
-	msg: either 'success' or 'failed'
-}
-
-19. GET api/flight_rating
-possible query parameters:
-	airline_name
 	flight_number
 	arrival_date
 	departure_date
 
 feature:
 NEEDS AUTHENTICATION
-return all comments of this flight
-
-return object structure:
-{
-	comments: [
-		comment,
-		rating
-	]
-}
-
-20. GET api/customer
-possible query parameters:
-	airline,
-
-feature:
-NEEDS AUTHENTICATION
+if only airline is specified,
 return all flights of that specific airline of all customers
+otherwise, return all customer who registered for the flight
 
 return object structure:
+case 1:
 {
 	customers: [
 		{
@@ -560,8 +446,144 @@ return object structure:
 	]
 }
 
+case 2:
+{
+	customers: [
+		{
+			email,
+			first_name,
+			last_name,
+			purchased_date
+		}
+	]
+}
+
+15. PUT api/flights
+possible body parameters:
+{
+	airline_name,
+	flight_number,
+	departure_date,
+	departure_time,
+	departure_airport_code,
+	arrival_date,
+	arrival_time,
+	arrival_airport_code,
+	base_price,
+	airplane_id
+}
+
+feature:
+NEEDS AUTHENTICATION
+create a new flight
+
+return object structure:
+{
+	msg: either 'success' or 'failed'
+}
+
+16. POST api/flights/status
+possible body parameters:
+{
+	status
+	airline_name
+	flight_number
+	arrival_date
+	departure_date
+}
+
+feature:
+NEEDS AUTHENTICATION
+change the status of the flight
+
+return object structure:
+{
+	msg: either 'success' or 'failed'
+}
+
+17. PUT api/airplane
+possible body parameters:
+{
+	airline_name,
+	ID,
+	seat_number,
+	manufacturing_company,
+	manufacturing_date,
+	age
+}
+
+feature:
+NEEDS AUTHENTICATION
+create a new airplane
+
+return object structure:
+{
+	msg: either 'success' or 'failed'
+}
+
+18. GET api/airplane
+possible query parameters:
+	airline
+
+feature:
+NEEDS AUTHENTICATION
+return airplanes that belong to the airline
+
+return object structure:
+{
+	airplanes: [
+		{
+			airline_name,
+			ID,
+			seat_number,
+			manufacturing_company,
+			manufacturing_date,
+			age
+		}
+	]
+}
+
+19. PUT api/airport
+possible body parameters:
+{
+	code,
+	name,
+	city,
+	country,
+	airport_type
+}
+
+feature:
+NEEDS AUTHENTICATION
+create a new airport
+
+return object structure:
+{
+	msg: either 'success' or 'failed'
+}
+
+20. GET api/flights/rating
+possible query parameters:
+	airline_name
+	flight_number
+	arrival_date
+	departure_date
+
+feature:
+NEEDS AUTHENTICATION
+return all comments of this flight
+
+return object structure:
+{
+	comments: [
+		comment,
+		rating
+	]
+}
+
 21. GET api/tickets
 possible query parameters:
+	airline
 	start_date
 	end_date
 
