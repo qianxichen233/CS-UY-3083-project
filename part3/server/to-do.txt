@@ -153,9 +153,9 @@ possible body parameters:
 		last_name
 	}
 	date_of_birth
+	phone_number
+	email
 	airline
-	phone_numbers: [array]
-	emails: [array]
 }
 
 feature:

@@ -1,6 +1,7 @@
 from flask import Flask
 from datetime import timedelta
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 
 import os
 from dotenv import load_dotenv
@@ -17,9 +18,13 @@ from apis.user import user_api
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app, supports_credentials=True)
 
 app.config["JWT_SECRET_KEY"] = os.getenv("jwt_secret")
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours = 24)
+app.config['JWT_TOKEN_LOCATION'] = ['cookies']
+app.config['JWT_COOKIE_CSRF_PROTECT'] = True
+app.config['JWT_CSRF_CHECK_FORM'] = True
 
 jwt = JWTManager(app)
 
