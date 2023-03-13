@@ -44,45 +44,45 @@ return all flights fulfill the condition specified
 
 return object structure:
 {
-	flights: [
+	flights_to: [
 		{
-			to: {
-				airline_name,
-				flight_number,
-				departure_date,
-				departure_time,
-				departure_airport_code,
-				arrival_date,
-				arrival_time,
-				arrival_airport_code,
-				base_price,
-				airplane: {
-					id,
-					seat_number,
-					manufacturing_company,
-					manufacturing_date,
-					age
-				}
-			},
-			(if return_date is specified) from: {
-				airline_name,
-				flight_number,
-				departure_date,
-				departure_time,
-				departure_airport_code,
-				arrival_date,
-				arrival_time,
-				arrival_airport_code,
-				base_price,
-				airplane: {
-					id,
-					seat_number,
-					manufacturing_company,
-					manufacturing_date,
-					age
-				}
+			airline_name,
+			flight_number,
+			departure_date,
+			departure_time,
+			departure_airport_code,
+			arrival_date,
+			arrival_time,
+			arrival_airport_code,
+			base_price,
+			airplane: {
+				id,
+				seat_number,
+				manufacturing_company,
+				manufacturing_date,
+				age
 			}
-		}
+		},
+	],
+	(if return date is specified) flights_from: [
+		{
+			airline_name,
+			flight_number,
+			departure_date,
+			departure_time,
+			departure_airport_code,
+			arrival_date,
+			arrival_time,
+			arrival_airport_code,
+			base_price,
+			airplane: {
+				id,
+				seat_number,
+				manufacturing_company,
+				manufacturing_date,
+				age
+			}
+		},
 	]
 }
 
@@ -247,20 +247,13 @@ possible body parameters:
 	card_name
 	expiration_date
 
-	//if type is one-way
-	airline_name
-	flight_number
-	arrival_date
-	departure_date
-
-	//if type is round-trip
 	to: {
 		airline_name
 		flight_number
 		arrival_date
 		departure_date
 	}
-	back: {
+	(if type is round-trip) back: {
 		airline_name
 		flight_number
 		arrival_date

@@ -1,158 +1,171 @@
 import { useEffect, useState } from "react";
 import { createQuery } from "../../utility";
-import Form from "../UI/Form";
 import FlightItem from "./FlightItem";
 
-const dummy = {
-    to: {
-        airline_name: "airline_name",
-        flight_number: "flight_number",
-        departure_date: "departure_date",
-        departure_time: "departure_time",
-        departure_airport_code: "departure_airport_code",
-        arrival_date: "arrival_date",
-        arrival_time: "arrival_time",
-        arrival_airport_code: "arrival_airport_code",
-        base_price: "base_price",
-        airplane: {
-            id: "id",
-            seat_number: "seat_number",
-            manufacturing_company: "manufacturing_company",
-            manufacturing_date: "manufacturing_date",
-            age: "age",
-        },
-    },
-};
+import axios from "axios";
 
-const exclusion = {
-    source_city: "source_airport",
-    source_airport: "source_city",
-    destination_city: "destination_airport",
-    destination_airport: "destination_city",
+import styles from "./ShowFlight.module.scss";
+import useUser from "../../hooks/useUser";
+import Search from "./Search";
+import FlightResult from "./FlightResult";
+import FlightsSubpage from "./FlightsSubpage";
+
+const dummy = {
+    flights_to: [
+        {
+            airline_name: "ABC Airline",
+            flight_number: "12345",
+            departure_date: "Fri, 24 May 2023",
+            departure_time: "12:20",
+            departure_airport_code: "ABC",
+            arrival_date: "Fri, 24 May 2023",
+            arrival_time: "16:40",
+            arrival_airport_code: "CBA",
+            base_price: "99.9$",
+            time: "4h 20m",
+            status: "delayed",
+            airplane: {
+                id: "10001",
+                seat_number: "100",
+                manufacturing_company: "Apple",
+                manufacturing_date: "2021-01-01",
+                age: "2",
+            },
+        },
+    ],
+    flights_from: [
+        {
+            airline_name: "AAA Airline",
+            flight_number: "54321",
+            departure_date: "Fri, 29 May 2023",
+            departure_time: "14:20",
+            departure_airport_code: "CBA",
+            arrival_date: "Fri, 29 May 2023",
+            arrival_time: "18:50",
+            arrival_airport_code: "ABC",
+            base_price: "109.9$",
+            time: "4h 30m",
+            status: "delayed",
+            airplane: {
+                id: "10002",
+                seat_number: "90",
+                manufacturing_company: "Banana",
+                manufacturing_date: "2022-05-02",
+                age: "1",
+            },
+        },
+    ],
 };
 
 const ShowFlights = (props) => {
-    const [filter, setFilter] = useState({
-        source_city: "",
-        source_airport: "",
-        destination_city: "",
-        destination_airport: "",
-        departure_date: "",
-        return_date: "",
-    });
+    const { user } = useUser();
+    const [result, setResult] = useState();
 
-    const [flights, setFlights] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [initialLoading, setInitialLoading] = useState(false);
+    const onSearchHandler = async (search_body) => {
+        const { type, body } = search_body;
+        if (type === "flight_search") {
+            const params = {};
 
-    const onFilterChange = (property, value) => {
-        setFilter((prev) => {
-            const newState = { ...prev };
-            newState[property] = value;
-            if (exclusion[property]) newState[exclusion[property]] = "";
-            return newState;
-        });
+            if (body.departure) params["departure_date"] = body.departure;
+            if (body.return) params["return_date"] = body.return;
+            if (body.from.value) {
+                if (body.from.type === "city")
+                    params["source_city"] = body.from.value;
+                else if (body.from.type === "airport")
+                    params["source_airport"] = body.from.value;
+            }
+            if (body.to.value) {
+                if (body.to.type === "city")
+                    params["destination_city"] = body.to.value;
+                else if (body.to.type === "airport")
+                    params["destination_airport"] = body.to.value;
+            }
+
+            let result;
+            try {
+                result = await axios.get(
+                    `http://${process.env.REACT_APP_backend_baseurl}/api/flights/future`,
+                    {
+                        params: params,
+                    }
+                );
+
+                setResult({
+                    type: "flight",
+                    content: result.data,
+                });
+            } catch {
+                console.log(result.data.msg);
+            }
+        } else if (type === "status") {
+            let result;
+            try {
+                result = await axios.get(
+                    `http://${process.env.REACT_APP_backend_baseurl}/api/flights/status`,
+                    {
+                        params: {
+                            airline_name: body.airline,
+                            flight_number: body.flight_number,
+                            departure_date: body.departure,
+                        },
+                    }
+                );
+                setResult({
+                    type: "status",
+                    content: result.data,
+                });
+            } catch {
+                console.log(result.data.msg);
+            }
+        } else if (type === "myflight") {
+            if (!user) return;
+            const params = {
+                email: user.email,
+            };
+
+            if (body.start_date) params["start_date"] = body.start_date;
+            if (body.end_date) params["end_date"] = body.end_date;
+            if (body.from.value) {
+                if (body.from.type === "city")
+                    params["source_city"] = body.from.value;
+                else if (body.from.type === "airport")
+                    params["source_airport"] = body.from.value;
+            }
+            if (body.to.value) {
+                if (body.to.type === "city")
+                    params["destination_city"] = body.to.value;
+                else if (body.to.type === "airport")
+                    params["destination_airport"] = body.to.value;
+            }
+
+            let result;
+            try {
+                result = await axios.get(
+                    `http://${process.env.REACT_APP_backend_baseurl}/api/flights/schedule`,
+                    {
+                        params: params,
+                    }
+                );
+
+                setResult({
+                    type: "myflight",
+                    content: result.data,
+                });
+            } catch {
+                console.log(result.data.msg);
+            }
+        }
     };
 
-    const fetchFlights = async (filter) => {
-        setIsLoading(true);
-        const query = createQuery({
-            either: [
-                {
-                    source_city: filter.source_city,
-                    source_airport: filter.source_airport,
-                },
-                {
-                    destination_city: filter.destination_city,
-                    destination_airport: filter.destination_airport,
-                },
-            ],
-            append: {
-                departure_date: filter.departure_date,
-                return_date: filter.return_date,
-            },
-        });
-
-        let result = [dummy];
-
-        // const raw_result = await fetch(
-        //     `${process.env.backend_baseurl}/api/future_flight?${query}`
-        // );
-
-        // result = await raw_result.json();
-        setFlights(result);
-        setIsLoading(false);
+    const renderSubpage = (result) => {
+        if (result?.type === "flight")
+            return <FlightsSubpage flights={result.content} />;
     };
-
-    useEffect(() => {
-        if (initialLoading) return;
-        if (!filter) return;
-        fetchFlights(filter);
-        setInitialLoading(true);
-    }, [initialLoading, filter]);
 
     return (
-        <div>
-            <Form
-                inputs={[
-                    {
-                        type: "text",
-                        label: "source city",
-                        value: filter.source_city,
-                        onChange: onFilterChange.bind(null, "source_city"),
-                    },
-                    {
-                        type: "text",
-                        label: "source airport",
-                        value: filter.source_airport,
-                        onChange: onFilterChange.bind(null, "source_airport"),
-                    },
-                    {
-                        type: "text",
-                        label: "destination city",
-                        value: filter.destination_city,
-                        onChange: onFilterChange.bind(null, "destination_city"),
-                    },
-                    {
-                        type: "text",
-                        label: "destination airport",
-                        value: filter.destination_airport,
-                        onChange: onFilterChange.bind(
-                            null,
-                            "destination_airport"
-                        ),
-                    },
-                    {
-                        type: "date",
-                        label: "departure date",
-                        value: filter.departure_date,
-                        onChange: onFilterChange.bind(null, "departure_date"),
-                    },
-                    {
-                        type: "date",
-                        label: "return date",
-                        value: filter.return_date,
-                        onChange: onFilterChange.bind(null, "return_date"),
-                    },
-                ]}
-                submit={{
-                    onSubmit: fetchFlights.bind(null, filter),
-                    text: "submit",
-                }}
-            />
-            {flights.map((flight) => {
-                if (!flight) return null;
-                return (
-                    <FlightItem
-                        key={
-                            flight.airline_name +
-                            flight.flight_number +
-                            flight.departure_date
-                        }
-                        flight={flight}
-                    />
-                );
-            })}
+        <div className={styles.container}>
+            <Search onSearch={onSearchHandler} />
+            {renderSubpage(result)}
         </div>
     );
 };
