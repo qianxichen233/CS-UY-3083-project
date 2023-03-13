@@ -90,7 +90,6 @@ return object structure:
 possible query parameters:
 	airline_name
 	flight_number
-	arrival_date
 	departure_date
 
 feature:

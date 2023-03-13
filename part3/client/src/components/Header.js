@@ -1,10 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useUser from "../hooks/useUser";
 
 import styles from "./Header.module.scss";
 
 const Header = (props) => {
     const { user } = useUser();
+    const navigate = useNavigate();
 
     const bgColor =
         props.page !== "Home" &&
@@ -19,7 +20,7 @@ const Header = (props) => {
                 backgroundColor: bgColor,
             }}
         >
-            <div className={styles.name}>
+            <div className={styles.name} onClick={() => navigate("/")}>
                 <span>RTicket</span>
             </div>
             <div className={styles.bars}>

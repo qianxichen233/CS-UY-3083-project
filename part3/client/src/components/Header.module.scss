@@ -18,6 +18,10 @@
         font-weight: 700;
 
         user-select: none;
+
+        &:hover {
+            cursor: pointer;
+        }
     }
 
     .bars {
@@ -59,6 +63,8 @@
 
         font-size: 30pt;
         font-weight: 400;
+
+        user-select: none;
     }
 }
 
