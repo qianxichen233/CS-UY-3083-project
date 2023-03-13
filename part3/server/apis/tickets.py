@@ -14,6 +14,6 @@ def get_ticket_price():
 def create_new_ticket():
     return {'msg': 'under development'}
 
-@tickets_api.route('/unregister', methods=['DELETE'])
+@tickets_api.route('/unregister', methods=['POST'])
 def delete_ticket():
     return {'msg': 'under development'}

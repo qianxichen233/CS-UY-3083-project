@@ -1,15 +1,24 @@
-import { useState } from "react";
 import AirplaneIcon from "../UI/AirplaneIcon";
 import Arrow from "../UI/Arrow";
 import Checkbox from "../UI/Checkbox";
 import styles from "./FlightItem.module.scss";
 
-const FlightItem = ({ flight, onSelect, onDeselect, selected, selectable }) => {
+const FlightItem = ({
+    flight,
+    onSelect,
+    onDeselect,
+    selected,
+    selectable,
+    showStatus,
+    calculatedPrice,
+}) => {
     const onClickHandler = () => {
         if (!selectable || !onSelect || !onDeselect) return;
         if (!selected) onSelect();
         else onDeselect();
     };
+
+    const showBasePrice = !showStatus && !calculatedPrice;
 
     return (
         <div className={styles.flight}>
@@ -28,7 +37,7 @@ const FlightItem = ({ flight, onSelect, onDeselect, selected, selectable }) => {
                     </div>
                 </div>
             </header>
-            <main>
+            <main onClick={onClickHandler}>
                 {selectable && (
                     <div className={styles.select}>
                         <Checkbox
@@ -77,8 +86,14 @@ const FlightItem = ({ flight, onSelect, onDeselect, selected, selectable }) => {
                         <span>{flight.airplane.seat_number} Seats</span>
                     </div>
                     <div className={styles.price}>
-                        <span className={styles.text}>Starts From</span>
-                        <span>{flight.base_price}</span>
+                        {!!showStatus && <span>{flight.status}</span>}
+                        {showBasePrice && (
+                            <>
+                                <span className={styles.text}>Starts From</span>
+                                <span>{flight.base_price}</span>
+                            </>
+                        )}
+                        {!!calculatedPrice && <span>{calculatedPrice}</span>}
                     </div>
                 </div>
             </main>

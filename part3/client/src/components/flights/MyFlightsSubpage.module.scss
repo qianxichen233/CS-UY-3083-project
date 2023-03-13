@@ -1,5 +1,13 @@
 .container {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+    gap: 30px;
+
     margin-bottom: 30px;
+
     .division {
         height: 50px;
         display: flex;
@@ -13,10 +21,22 @@
         width: 100vw;
 
         > span {
+            width: 1000px;
             color: #ff7100;
             font-size: 16pt;
             font-weight: 500;
             user-select: none;
+        }
+    }
+
+    .comment {
+        width: 100%;
+
+        > span {
+            display: inline-block;
+            font-size: 12pt;
+            font-weight: 600;
+            margin-bottom: 10px;
         }
     }
 }
