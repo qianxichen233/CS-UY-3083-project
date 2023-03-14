@@ -1,0 +1,15 @@
+.container {
+    margin-bottom: 30px;
+    > ul {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+
+        .toolBar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+    }
+}

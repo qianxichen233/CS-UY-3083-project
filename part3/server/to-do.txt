@@ -191,10 +191,12 @@ possible query parameters:
 	destination_airport
 	source_city
 	source_airport
+	airline
 
 feature:
 NEEDS AUTHENTICATE
 return all future flights the user have scheduled
+if request user is staff, airline is required and only return flights belong to the airline
 
 return object structure:
 {
@@ -391,6 +393,7 @@ return object structure:
 		arrival_time,
 		arrival_airport_code,
 		base_price,
+		status,
 		airplane: {
 			id,
 			seat_number,
@@ -410,43 +413,9 @@ possible query parameters:
 
 feature:
 NEEDS AUTHENTICATION
-if only airline is specified,
-return all flights of that specific airline of all customers
-otherwise, return all customer who registered for the flight
+return all customer who registered for the flight
 
 return object structure:
-case 1:
-{
-	customers: [
-		{
-			email,
-			first_name,
-			last_name,
-			flights: [
-				{
-					airline_name,
-					flight_number,
-					departure_date,
-					departure_time,
-					departure_airport_code,
-					arrival_date,
-					arrival_time,
-					arrival_airport_code,
-					base_price,
-					airplane: {
-						id,
-						seat_number,
-						manufacturing_company,
-						manufacturing_date,
-						age
-					}
-				}
-			]
-		}
-	]
-}
-
-case 2:
 {
 	customers: [
 		{
