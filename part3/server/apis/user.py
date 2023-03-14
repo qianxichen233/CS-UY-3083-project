@@ -67,6 +67,7 @@ def login():
         refresh_token = create_refresh_token(identity = body['username'])
 
         response = make_response(jsonify({
+            'type': 'customer',
             'first_name': users[0][1],
             'last_name': users[0][2]
         }))
@@ -81,7 +82,7 @@ def login():
 
     elif(body['user_type'] == 'staff'):
         cursor.execute("""
-            SELECT password
+            SELECT password, airline_name
             FROM airline_staff
             WHERE username=%(username)s
         """, {
@@ -90,23 +91,23 @@ def login():
 
         result = cursor.fetchall()
         cursor.close()
-        password = []
+        user = []
 
         for (p) in result:
-            password.append(p)
+            user.append(p)
         
-        if(len(password) == 0):
+        if(len(user) == 0):
             return {"msg": "unknown user"}, 401
         
-        if(not bcrypt.checkpw(body['password'], password[0])):
+        if(not bcrypt.checkpw(body['password'].encode('utf-8'), user[0][0].encode('utf-8'))):
             return {"msg": "wrong password"}, 401
 
         access_token = create_access_token(identity = body['username'])
         refresh_token = create_refresh_token(identity = body['username'])
 
         response = make_response(jsonify({
-            'first_name': users[0][1],
-            'last_name': users[0][2]
+            'type': 'staff',
+            'airline': user[0][1],
         }))
         set_access_cookies(response, access_token)
         set_refresh_cookies(response, refresh_token)

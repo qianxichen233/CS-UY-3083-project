@@ -3,6 +3,11 @@ from datetime import timedelta
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 
+from datetime import datetime, timedelta, timezone
+from flask_jwt_extended import create_access_token,get_jwt,get_jwt_identity, JWTManager
+
+import json
+
 import os
 from dotenv import load_dotenv
 
@@ -31,11 +36,28 @@ jwt = JWTManager(app)
 app.register_blueprint(airplane_api, url_prefix='/api/airplane')
 app.register_blueprint(airport_api, url_prefix='/api/airport')
 app.register_blueprint(comments_api, url_prefix='/api/comment')
-app.register_blueprint(customers_api, url_prefix='/api/customers')
+app.register_blueprint(customers_api, url_prefix='/api/customer')
 app.register_blueprint(flights_api, url_prefix='/api/flights')
 app.register_blueprint(spending_api, url_prefix='/api/spending')
 app.register_blueprint(tickets_api, url_prefix='/api/tickets')
 app.register_blueprint(user_api, url_prefix='/api')
 
+@app.after_request
+def refresh_expiring_jwts(response):
+    try:
+        exp_timestamp = get_jwt()["exp"]
+        now = datetime.now(timezone.utc)
+        target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
+        if target_timestamp > exp_timestamp:
+            access_token = create_access_token(identity=get_jwt_identity())
+            data = response.get_json()
+            if type(data) is dict:
+                data["access_token"] = access_token 
+                response.data = json.dumps(data)
+        return response
+    except (RuntimeError, KeyError):
+        # Case where there is not a valid JWT. Just return the original respone
+        return response
+    
 if __name__ == "__main__":
 	app.run(port = 8000, debug = True)

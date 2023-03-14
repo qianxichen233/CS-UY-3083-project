@@ -81,7 +81,7 @@ const RegisterStaff = (props) => {
                             {
                                 type: "text",
                                 label: "Username",
-                                value: info.email,
+                                value: info.username,
                                 onChange: onInfoChange.bind(null, "username"),
                                 required: "Username is Required",
                             },

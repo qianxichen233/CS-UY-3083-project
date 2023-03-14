@@ -42,14 +42,16 @@ const Login = (props) => {
             );
 
             saveUser({
+                type: result.data.type,
                 username: credential.username,
                 first_name: result.data.first_name,
                 last_name: result.data.last_name,
+                airline: result.data.airline,
             });
 
             navigate("/");
         } catch (e) {
-            if (e.response.data.msg) setError(e.response.data.msg);
+            if (e.response.data.msg) console.log(e.response.data.msg);
             else setError("Unknown Error");
         }
     };

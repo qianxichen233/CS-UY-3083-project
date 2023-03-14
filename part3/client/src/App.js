@@ -35,11 +35,13 @@ const router = createBrowserRouter([
 
 const getUser = () => {
     const user = {
+        type: localStorage.getItem("type"),
         username: localStorage.getItem("username"),
         first_name: localStorage.getItem("first_name"),
         last_name: localStorage.getItem("last_name"),
+        airline: localStorage.getItem("airline"),
     };
-    if (!user.username || !user.first_name || !user.last_name) return null;
+    if (!user.username) return null;
     return user;
 };
 

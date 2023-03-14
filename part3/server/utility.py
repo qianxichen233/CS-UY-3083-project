@@ -22,3 +22,24 @@ def convertBody(body, format):
         result[item] = value
     
     return result
+
+def convertParams(params, format):
+    result = {}
+
+    for item in format.keys():
+        path = format[item]
+
+        optional = False
+        if(item[-1] == '?'):
+            optional = True
+            item = item[:-1]
+        
+        if(params.get(path) == None):
+            if(optional):
+                continue
+            else:
+                return False
+        else:
+            result[item] = params.get(path)
+    
+    return result

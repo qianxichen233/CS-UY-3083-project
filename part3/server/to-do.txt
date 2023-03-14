@@ -14,7 +14,7 @@ api overview:
 21. GET api/tickets
 6. GET api/tickets/price
 7. PUT api/tickets/register
-8. DELETE api/tickets/unregister
+8. POST api/tickets/unregister
 
 10. GET api/comment
 9. PUT api/comment
@@ -23,10 +23,11 @@ api overview:
 17. PUT api/airplane
 
 11. GET api/spending
-14. GET api/customers
+14. GET api/customer/all
+22. GET api/customer
 19. PUT api/airport
 
-api detailed information:
+Api detailed information:
 1. GET api/flights/future
 possible query parameters:
 	source_city
@@ -276,7 +277,7 @@ return object structure:
 	msg: either 'success' or 'failed'
 }
 
-8. post api/tickets/unregister
+8. POST api/tickets/unregister
 possible body parameters:
 {
 	email
@@ -335,17 +336,19 @@ return object structure:
 }
 
 11. GET api/spending
-no parameter
+possible query parameters:
+	from
+	to
 
 feature:
 NEEDS AUTHENTICATION
-return all flight costs in the past year
+return all flight costs within the range, monthly
 
 return object structure:
 {
 	flights: [
 		{
-			date,
+			month,
 			cost
 		}
 	]
@@ -398,7 +401,7 @@ return object structure:
 	]
 }
 
-14. GET api/customers
+14. GET api/customer/all
 possible query parameters:
 	airline
 	flight_number
@@ -604,6 +607,44 @@ return object structure:
 	]
 }
 
+22. GET api/customer
+possible query parameters:
+	type (either customer or staff)
+	username
+
+feature:
+NEEDS AUTHENTICATION
+return all user information
+
+return object structure:
+{
+	(if type is customer)
+	email
+	first_name
+	last_name
+	phone_numbers: []
+	address: {
+		building_number
+		street_name
+		apartment_number
+		city
+		state
+		zip_code
+	}
+	passport: {
+		number
+		expiration
+		country
+	}
+	date_of_birth
+
+	(if type is staff)
+	username
+	first_name
+	last_name
+	airline_name
+	date_of_birth
+}
 
 
 

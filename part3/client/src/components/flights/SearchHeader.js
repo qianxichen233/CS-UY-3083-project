@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./SearchHeader.module.scss";
 
-const SearchHeader = ({ types, current, onChange }) => {
+const SearchHeader = ({ types, current, onChange, size, gap }) => {
     const target = useRef();
     const target_parent = useRef();
 
@@ -23,13 +23,19 @@ const SearchHeader = ({ types, current, onChange }) => {
 
     return (
         <div className={styles.container}>
-            <div ref={target_parent}>
+            <div
+                ref={target_parent}
+                style={{
+                    gap: gap,
+                }}
+            >
                 {types.map((type, index) => {
                     return (
                         <div
                             key={index}
                             style={{
                                 color: type.id === current ? "#FF7100" : null,
+                                fontSize: size,
                             }}
                             onClick={onChange.bind(null, type.id)}
                             ref={type.id === current ? target : null}
