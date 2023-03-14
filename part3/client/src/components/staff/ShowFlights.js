@@ -5,6 +5,9 @@ import axios from "axios";
 import styles from "../flights/ShowFlight.module.scss";
 import Search from "./Search";
 import FlightsSubpage from "./FlightsSubpage";
+import ShowCustomers from "./ShowCustomers";
+import CustomerFlights from "./CustomerFlights";
+import useUser from "../../hooks/useUser";
 
 const dummy_customer = [
     {
@@ -26,6 +29,8 @@ const dummy_customer = [
             expiration: "Wed, 31 Dec 2025 00:00:00 GMT",
             number: "12345",
         },
+        price: "120.9$",
+        purchased_date: "14, Mar 2023",
     },
     {
         address: {
@@ -46,6 +51,8 @@ const dummy_customer = [
             expiration: "Wed, 31 Dec 2025 00:00:00 GMT",
             number: "12345",
         },
+        price: "99.9$",
+        purchased_date: "12, Mar 2023",
     },
 ];
 
@@ -115,53 +122,134 @@ const dummy_myflights = [
     },
 ];
 
-const convertFlights = (flights) => {
-    flights.sort((a, b) => {
-        return (
-            new Date(b.departure_date + " " + b.departure_time) -
-            new Date(a.departure_date + " " + a.departure_time)
-        );
-    });
-
-    const converted = {
-        future: [],
-        ongoing: [],
-        past: [],
-    };
-
-    for (const flight of flights) {
-        const one_day_before = new Date(
-            new Date(flight.departure_date + " " + flight.departure_time) - 1
-        );
-        const arrival_date = new Date(
-            flight.arrival_date + " " + flight.arrival_time
-        );
-        if (one_day_before > new Date()) converted.future.push(flight);
-        else if (arrival_date < new Date()) converted.past.push(flight);
-        else converted.ongoing.push(flight);
-    }
-
-    return converted;
-};
-
 const ShowFlights = (props) => {
+    const { user } = useUser();
     const [result, setResult] = useState();
 
+    const getInitialResult = async () => {
+        try {
+            const result = await axios.get(
+                `http://${process.env.REACT_APP_backend_baseurl}/api/flights`,
+                {
+                    params: {
+                        from: new Date(),
+                        to: new Date().setDate(new Date().getDate() + 30),
+                    },
+                    withCredentials: true,
+                }
+            );
+
+            setResult({
+                type: "flight",
+                content: result.data.flights,
+            });
+        } catch (e) {
+            console.log(e.response.data.msg);
+        }
+    };
+
     const onSearchHandler = async (search_body) => {
-        console.log(search_body);
+        if (user.type !== "staff") return;
+
+        const { type, body } = search_body;
+        if (type === "flight_search") {
+            const params = {
+                airline: user.airline,
+            };
+
+            if (body.from) params["start_date"] = body.from;
+            if (body.to) params["end_date"] = body.to;
+            if (body.source.value) {
+                if (body.source.type === "city")
+                    params["source_city"] = body.source.value;
+                else if (body.source.type === "airport")
+                    params["source_airport"] = body.source.value;
+            }
+            if (body.target.value) {
+                if (body.source.type === "city")
+                    params["destination_city"] = body.source.value;
+                else if (body.source.type === "airport")
+                    params["destination_airport"] = body.source.value;
+            }
+
+            try {
+                const result = await axios.get(
+                    `http://${process.env.REACT_APP_backend_baseurl}/api/flights`,
+                    {
+                        params: params,
+                        withCredentials: true,
+                    }
+                );
+
+                setResult({
+                    type: "flight",
+                    content: result.data.flights,
+                });
+            } catch (e) {
+                console.log(e.response.data.msg);
+            }
+        } else if (type === "customer") {
+            try {
+                const result = await axios.get(
+                    `http://${process.env.REACT_APP_backend_baseurl}/api/customer/all`,
+                    {
+                        params: {
+                            airline: body.airline,
+                            flight_number: body.flight_number,
+                            departure_date: body.departure_date,
+                        },
+                        withCredentials: true,
+                    }
+                );
+
+                setResult({
+                    type: "customer",
+                    content: result.data.customers,
+                });
+            } catch (e) {
+                console.log(e.response.data.msg);
+            }
+        } else if (type === "customer_flight") {
+            try {
+                const result = await axios.get(
+                    `http://${process.env.REACT_APP_backend_baseurl}/api/flights/schedule`,
+                    {
+                        params: {
+                            email: body.email,
+                            airline: body.airline,
+                        },
+                        withCredentials: true,
+                    }
+                );
+
+                setResult({
+                    type: "customer_flight",
+                    content: result.data.flights,
+                });
+            } catch (e) {
+                console.log(e.response.data.msg);
+            }
+        }
     };
 
     useEffect(() => {
-        setResult({
-            type: "flight",
-            content: dummy_myflights,
-        });
+        //getInitialResult();
     }, []);
+
+    const renderResult = (result) => {
+        if (!result) return null;
+        if (result.type === "flight")
+            return <FlightsSubpage flights={result.content} />;
+        else if (result.type === "customer")
+            return <ShowCustomers info={result.content} />;
+        else if (result.type == "customer_flight")
+            return <CustomerFlights flights={result.content} />;
+    };
 
     return (
         <div className={styles.container}>
             <Search onSearch={onSearchHandler} />
-            {!!result && <FlightsSubpage flights={result.content} />}
+            {renderResult(result)}
         </div>
     );
 };

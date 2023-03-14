@@ -4,4 +4,6 @@ import {
     AiFillCaretDown as CaretDown,
 } from "react-icons/ai";
 
-export { EmptyStar, FilledStar, CaretDown };
+import { CgProfile as Profile } from "react-icons/cg";
+
+export { EmptyStar, FilledStar, CaretDown, Profile };

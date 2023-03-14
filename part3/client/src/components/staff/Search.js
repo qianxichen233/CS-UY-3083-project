@@ -5,12 +5,10 @@ import FlightSearch from "./FlightSearch";
 import styles from "./Search.module.scss";
 import SearchHeader from "../flights/SearchHeader";
 import FlightCustomerSearch from "./FlightCustomerSearch";
-import AddFlight from "./AddFlight";
-import AddPort from "./AddPort";
-import AddPlane from "./AddPlane";
+import Add from "./Add";
+import CustomerFlightSearch from "./CustomerFlightSearch";
 
 const Search = (props) => {
-    const { user } = useUser();
     const [type, setType] = useState("flight");
 
     let [searchParams, _] = useSearchParams();
@@ -34,16 +32,12 @@ const Search = (props) => {
             text: "Show Flight Customer",
         },
         {
-            id: "addflight",
-            text: "Add Flight",
+            id: "cust_flight",
+            text: "Search Customer's Flight",
         },
         {
-            id: "addport",
-            text: "Add Airport",
-        },
-        {
-            id: "addplane",
-            text: "Add Airplane",
+            id: "add",
+            text: "Add Item",
         },
     ];
 
@@ -56,12 +50,10 @@ const Search = (props) => {
             return <FlightSearch onSearch={onSearchHandler} />;
         } else if (type === "customer") {
             return <FlightCustomerSearch onSearch={onSearchHandler} />;
-        } else if (type === "addflight") {
-            return <AddFlight />;
-        } else if (type === "addport") {
-            return <AddPort />;
-        } else if (type === "addplane") {
-            return <AddPlane />;
+        } else if (type === "add") {
+            return <Add />;
+        } else if (type === "cust_flight") {
+            return <CustomerFlightSearch onSearch={onSearchHandler} />;
         }
     };
 

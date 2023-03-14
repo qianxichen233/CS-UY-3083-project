@@ -408,7 +408,6 @@ return object structure:
 possible query parameters:
 	airline
 	flight_number
-	arrival_date
 	departure_date
 
 feature:
@@ -419,10 +418,26 @@ return object structure:
 {
 	customers: [
 		{
-			email,
-			first_name,
-			last_name,
+			email
+			first_name
+			last_name
+			phone_numbers: []
+			address: {
+				building_number
+				street_name
+				apartment_number
+				city
+				state
+				zip_code
+			}
+			passport: {
+				number
+				expiration
+				country
+			}
+			date_of_birth
 			purchased_date
+			price
 		}
 	]
 }
