@@ -1,0 +1,36 @@
+.container {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+    gap: 50px;
+
+    width: 1000px;
+    position: relative;
+    top: -150px;
+    margin: 0 auto;
+    margin-bottom: -100px;
+
+    .revenue {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+
+        > section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            & :first-child {
+                font-size: 14pt;
+                font-weight: 600;
+            }
+
+            & :last-child {
+                font-size: 16pt;
+                font-weight: 600;
+                color: rgb(255, 113, 0);
+            }
+        }
+    }
+}

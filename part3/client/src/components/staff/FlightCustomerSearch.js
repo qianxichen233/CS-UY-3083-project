@@ -3,11 +3,19 @@ import Form from "../UI/Form";
 
 import styles from "../flights/StatusSearch.module.scss";
 
+const convertDate = (date) => {
+    return new Date(date).toISOString().split("T")[0];
+};
+
 const FlightCustomerSearch = (props) => {
     const [filter, setFilter] = useState({
-        airline: "",
-        flight_number: "",
-        departure: "",
+        airline: props.default?.airline ? props.default.airline : "",
+        flight_number: props.default?.flight_number
+            ? props.default.flight_number
+            : "",
+        departure: props.default?.departure_date
+            ? convertDate(props.default.departure_date)
+            : "",
     });
 
     const onFilterChange = (property, value) => {

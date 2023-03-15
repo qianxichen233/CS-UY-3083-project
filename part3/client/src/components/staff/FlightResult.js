@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Fragment, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import FlightItem from "../flights/FlightItem";
 import Button from "../UI/Button";
 import SelectBar from "../UI/SelectBar";
@@ -16,6 +17,8 @@ const FlightResult = ({
     onDeselectHandler,
     selectedFlights,
 }) => {
+    const navigate = useNavigate();
+
     const [status, setStatus] = useState(
         flights.map((flight) => flight.status)
     );
@@ -58,7 +61,11 @@ const FlightResult = ({
         );
     };
 
-    const onClickHandler = () => {};
+    const onClickHandler = (flight) => {
+        navigate(
+            `/comment?airline=${flight.airline_name}&flight=${flight.flight_number}&departure=${flight.departure_date}`
+        );
+    };
 
     return (
         <div className={styles.container}>
@@ -112,7 +119,10 @@ const FlightResult = ({
                                     />
                                     <Button
                                         text="View Comments"
-                                        onClick={onClickHandler}
+                                        onClick={onClickHandler.bind(
+                                            null,
+                                            flight
+                                        )}
                                         disabled={!isPastFlight(flight)}
                                     />
                                 </div>

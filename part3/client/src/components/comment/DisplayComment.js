@@ -6,7 +6,10 @@ const DisplayComment = ({ comment }) => {
 
     return (
         <div className={styles.container}>
-            <Stars maxStars={5} filled={comment.rating} />
+            <div className={styles.header}>
+                <Stars maxStars={5} filled={comment.rating} />
+                {!!comment.author && <span>{comment.author}</span>}
+            </div>
             <div className={styles.comment}>
                 <span>{comment.comment}</span>
             </div>

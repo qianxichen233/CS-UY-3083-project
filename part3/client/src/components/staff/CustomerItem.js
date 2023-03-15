@@ -5,7 +5,7 @@ const convertDate = (date) => {
     return new Date(date).toDateString().split(" ").slice(1).join(" ");
 };
 
-const CustomerItem = ({ customer }) => {
+const CustomerItem = ({ customer, ticket }) => {
     return (
         <div className={styles.container}>
             <header>
@@ -58,19 +58,23 @@ const CustomerItem = ({ customer }) => {
                         </div>
                     </div>
                 </section>
-                <section>
-                    <span>Purchased At</span>
-                    <div>
+                {!!ticket && (
+                    <section>
+                        <span>Purchased At</span>
                         <div>
-                            <span>Date</span>
-                            <span>{convertDate(customer.purchased_date)}</span>
+                            <div>
+                                <span>Date</span>
+                                <span>
+                                    {convertDate(customer.purchased_date)}
+                                </span>
+                            </div>
+                            <div>
+                                <span>Price</span>
+                                <span>{customer.price}</span>
+                            </div>
                         </div>
-                        <div>
-                            <span>Price</span>
-                            <span>{customer.price}</span>
-                        </div>
-                    </div>
-                </section>
+                    </section>
+                )}
             </main>
         </div>
     );

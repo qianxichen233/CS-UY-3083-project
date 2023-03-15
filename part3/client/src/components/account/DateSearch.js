@@ -16,7 +16,7 @@ const DateSearch = (props) => {
     return (
         <div className={styles.container}>
             <header>
-                <span>Track Your Spending</span>
+                <span>{props.text}</span>
             </header>
             <main>
                 <Form

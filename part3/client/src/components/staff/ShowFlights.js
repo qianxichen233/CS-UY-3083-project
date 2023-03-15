@@ -234,6 +234,13 @@ const ShowFlights = (props) => {
 
     useEffect(() => {
         //getInitialResult();
+        setResult({
+            type: "customer",
+            content: {
+                customers: dummy_customer,
+                flight: dummy_myflights[0],
+            },
+        });
     }, []);
 
     const renderResult = (result) => {

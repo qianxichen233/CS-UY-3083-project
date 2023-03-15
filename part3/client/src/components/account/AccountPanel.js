@@ -138,9 +138,8 @@ const AccountPanel = (props) => {
     };
 
     const fetchSpendingData = async (range) => {
-        let result;
         try {
-            result = axios.get(
+            const result = axios.get(
                 `http://${process.env.REACT_APP_backend_baseurl}/api/spending`,
                 {
                     params: {
@@ -152,8 +151,8 @@ const AccountPanel = (props) => {
             );
 
             setSpending(result.data.flights);
-        } catch {
-            console.log(result.data.msg);
+        } catch (e) {
+            console.log(e.response.data.msg);
         }
     };
 
@@ -261,6 +260,7 @@ const AccountPanel = (props) => {
                 from={spendingRange.from}
                 to={spendingRange.to}
                 onChange={onSpendingDateChangeHandler}
+                text="Track Your Spending"
             />
             {!!spending && (
                 <SpendingChart

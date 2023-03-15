@@ -9,6 +9,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import Logout from "./pages/Logout";
 import Account from "./pages/Account";
+import Comment from "./pages/Comment";
 
 const router = createBrowserRouter([
     {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
     {
         path: "/account",
         element: <Account />,
+    },
+    {
+        path: "/comment",
+        element: <Comment />,
     },
 ]);
 

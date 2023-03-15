@@ -22,10 +22,14 @@ api overview:
 18. GET api/airplane
 17. PUT api/airplane
 
-11. GET api/spending
 14. GET api/customer/all
 22. GET api/customer
+24. GET api/customer/frequent
+
+11. GET api/spending
 19. PUT api/airport
+23. GET api/revenue
+
 
 Api detailed information:
 1. GET api/flights/future
@@ -320,17 +324,20 @@ return object structure:
 }
 
 10. GET api/comment
-NO AUTHENTICATION
+NEEDS AUTHENTICATION
 possible query parameters:
 	airline_name
+	flight_number
+	departure_date
 
 feature:
-return all comments to flights which belong to the airline
+return all comments to flights which belong to the flight
 
 return object structure:
 {
 	comments: [
 		{
+			author,
 			comment,
 			rating
 		}
@@ -573,20 +580,14 @@ possible query parameters:
 
 feature:
 NEEDS AUTHENTICATION
-return all tickets of the airline sold within the range
+return all tickets of the airline sold within the range, grouped by month
 
 return object structure:
 {
 	tickets: [
 		{
-			airline_name,
-			flight_number,
-			departure_date,
-			departure_time,
-			email,
-			purchased_date,
-			purchased_time,
-			calculated_price
+			month,
+			number
 		}
 	]
 }
@@ -630,7 +631,54 @@ return object structure:
 	date_of_birth
 }
 
+23. GET api/revenue
+possible query parameters:
+	airline
+	start_date
+	end_date
 
+feature:
+NEEDS AUTHENTICATION
+return total revenue the airline earned during the period
+
+return object structure:
+{
+	revenue
+}
+
+24. GET api/customer/frequent
+possible query parameters:
+	airline
+	start_date
+	end_date
+
+feature:
+NEEDS AUTHENTICATION
+return customer who booked most tickets for the airline during the period
+
+return object structure:
+{
+	customer: {
+		email
+		first_name
+		last_name
+		phone_numbers: []
+		address: {
+			building_number
+			street_name
+			apartment_number
+			city
+			state
+			zip_code
+		}
+		passport: {
+			number
+			expiration
+			country
+		}
+		date_of_birth
+	}
+}
 
 
 

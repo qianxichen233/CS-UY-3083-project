@@ -14,7 +14,11 @@ const ShowCustomers = ({ info: { customers, flight } }) => {
             </div>
             {customers.map((customer) => {
                 return (
-                    <CustomerItem key={customer.email} customer={customer} />
+                    <CustomerItem
+                        key={customer.email + customer.purchased_date}
+                        customer={customer}
+                        ticket={true}
+                    />
                 );
             })}
         </div>
