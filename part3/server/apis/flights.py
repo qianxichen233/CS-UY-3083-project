@@ -30,7 +30,3 @@ def get_future_flights():
 @flights_api.route("/schedule", methods = ["GET"])
 def get_scheduled_flights():
     return {'msg': 'under development'}
-
-@flights_api.route("/rating", methods = ["GET"])
-def get_flight_comments():
-    return {'msg': 'under development'}

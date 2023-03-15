@@ -75,3 +75,7 @@ def get_customer_info():
 @customers_api.route('/all', methods=['GET'])
 def get_customers():
     return {'msg': 'under development'}
+
+@customers_api.route('/frequent', methods=['GET'])
+def get_frequent_customers():
+    return {'msg': 'under development'}

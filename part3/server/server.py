@@ -19,6 +19,7 @@ from apis.flights import flights_api
 from apis.spending import spending_api
 from apis.tickets import tickets_api
 from apis.user import user_api
+from apis.revenue import revenue_api
 
 load_dotenv()
 
@@ -40,6 +41,7 @@ app.register_blueprint(customers_api, url_prefix='/api/customer')
 app.register_blueprint(flights_api, url_prefix='/api/flights')
 app.register_blueprint(spending_api, url_prefix='/api/spending')
 app.register_blueprint(tickets_api, url_prefix='/api/tickets')
+app.register_blueprint(revenue_api, url_prefix='/api/revenue')
 app.register_blueprint(user_api, url_prefix='/api')
 
 @app.after_request
