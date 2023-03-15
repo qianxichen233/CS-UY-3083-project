@@ -35,3 +35,7 @@ INSERT INTO
     airline
 VALUES
     ("Jet Blue");
+INSERT INTO
+    airline
+VALUES
+    ("Delta");
