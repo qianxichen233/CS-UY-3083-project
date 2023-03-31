@@ -42,7 +42,8 @@ CREATE TABLE airport (
     city VARCHAR(50) NOT NULL,
     country VARCHAR(50) NOT NULL,
     airport_type VARCHAR(10) NOT NULL,
-    PRIMARY KEY(code)
+    PRIMARY KEY(code),
+    CHECK (airport_type IN ("domestic", "international", "both"))
 );
 
 CREATE TABLE flight (
@@ -75,8 +76,8 @@ CREATE TABLE customer (
     street_name VARCHAR(100) NOT NULL,
     apartment_number VARCHAR(20) NOT NULL,
     city VARCHAR(50) NOT NULL,
-    state VARCHAR(50) NOT NULL,
-    zip_code VARCHAR(10) NOT NULL,
+    state VARCHAR(50),
+    zip_code VARCHAR(10),
     passport_number VARCHAR(20) NOT NULL,
     passport_expiration DATE NOT NULL,
     passport_country VARCHAR(50) NOT NULL,
@@ -85,7 +86,7 @@ CREATE TABLE customer (
 );
 
 CREATE TABLE ticket (
-    ID INT,
+    ID INT AUTO_INCREMENT,
     airline_name VARCHAR(50) NOT NULL,
     flight_number INT NOT NULL,
     departure_date_time DATETIME NOT NULL,
@@ -137,3 +138,14 @@ CREATE TABLE rate (
     ),
     FOREIGN KEY(airline_name) REFERENCES airline(name)
 );
+
+-- DELIMITER $$
+-- CREATE TRIGGER airplane_auto_id BEFORE INSERT ON airplane
+-- FOR EACH ROW BEGIN
+--     SET NEW.ID = (
+--        SELECT IFNULL(MAX(ID), 0) + 1
+--        FROM airplane
+--        WHERE airline_name  = NEW.airline_name
+--     );
+-- END $$
+-- DELIMITER ;
