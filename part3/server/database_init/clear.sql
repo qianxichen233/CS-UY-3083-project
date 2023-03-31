@@ -17,6 +17,8 @@ DROP TABLE IF EXISTS flight;
 
 DROP TABLE IF EXISTS customer;
 
+DROP TABLE IF EXISTS customer_phone_number;
+
 DROP TABLE IF EXISTS ticket;
 
 DROP TABLE IF EXISTS rate;

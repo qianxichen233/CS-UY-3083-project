@@ -41,9 +41,11 @@ CREATE TABLE airport (
     name VARCHAR(50) NOT NULL,
     city VARCHAR(50) NOT NULL,
     country VARCHAR(50) NOT NULL,
-    airport_type VARCHAR(10) NOT NULL,
+    airport_type VARCHAR(20) NOT NULL,
     PRIMARY KEY(code),
-    CHECK (airport_type IN ("domestic", "international", "both"))
+    CHECK (
+        airport_type IN ("domestic", "international", "both")
+    )
 );
 
 CREATE TABLE flight (
@@ -64,7 +66,15 @@ CREATE TABLE flight (
     FOREIGN KEY(departure_airport_code) REFERENCES airport(code),
     FOREIGN KEY(arrival_airport_code) REFERENCES airport(code),
     FOREIGN KEY(airline_name, airplane_ID) REFERENCES airplane(airline_name, ID),
-    CHECK (status in ("scheduled", "ontime", "delayed", "departed", "arrived"))
+    CHECK (
+        status in (
+            "scheduled",
+            "ontime",
+            "delayed",
+            "departed",
+            "arrived"
+        )
+    )
 );
 
 CREATE TABLE customer (
@@ -77,12 +87,19 @@ CREATE TABLE customer (
     apartment_number VARCHAR(20) NOT NULL,
     city VARCHAR(50) NOT NULL,
     state VARCHAR(50),
-    zip_code VARCHAR(10),
+    zip_code VARCHAR(20),
     passport_number VARCHAR(20) NOT NULL,
     passport_expiration DATE NOT NULL,
     passport_country VARCHAR(50) NOT NULL,
     date_of_birth DATE NOT NULL,
     PRIMARY KEY(email)
+);
+
+CREATE TABLE customer_phone_number (
+    email VARCHAR(30),
+    phone_number VARCHAR(20),
+    PRIMARY KEY(email, phone_number),
+    FOREIGN KEY(email) REFERENCES customer(email)
 );
 
 CREATE TABLE ticket (
@@ -111,7 +128,8 @@ CREATE TABLE ticket (
         departure_date_time
     ),
     FOREIGN KEY(airline_name) REFERENCES airline(name),
-    FOREIGN KEY(email) REFERENCES customer(email)
+    FOREIGN KEY(email) REFERENCES customer(email),
+    CHECK (card_type in ("credit", "debit"))
 );
 
 CREATE TABLE rate (
@@ -119,7 +137,7 @@ CREATE TABLE rate (
     airline_name VARCHAR(50),
     flight_number INT,
     departure_date_time DATETIME,
-    rating NUMERIC(2, 1) NOT NULL,
+    rating INT NOT NULL,
     comment VARCHAR(10000),
     PRIMARY KEY(
         email,
@@ -136,16 +154,25 @@ CREATE TABLE rate (
         flight_number,
         departure_date_time
     ),
-    FOREIGN KEY(airline_name) REFERENCES airline(name)
+    FOREIGN KEY(airline_name) REFERENCES airline(name),
+    CHECK (
+        rating >= 1
+        AND rating <= 5
+    )
 );
 
--- DELIMITER $$
--- CREATE TRIGGER airplane_auto_id BEFORE INSERT ON airplane
--- FOR EACH ROW BEGIN
---     SET NEW.ID = (
---        SELECT IFNULL(MAX(ID), 0) + 1
---        FROM airplane
---        WHERE airline_name  = NEW.airline_name
---     );
--- END $$
--- DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER airplane_auto_id BEFORE
+INSERT
+    ON airplane FOR EACH ROW BEGIN
+SET
+    NEW.ID = (
+        SELECT
+            IFNULL(MAX(ID), -1) + 1
+        FROM
+            airplane
+        WHERE
+            airline_name = NEW.airline_name
+    );
+END 
+DELIMITER ;
