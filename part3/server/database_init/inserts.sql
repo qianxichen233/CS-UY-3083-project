@@ -26,9 +26,6 @@ DELETE FROM
     ticket;
 
 DELETE FROM
-    purchased;
-
-DELETE FROM
     rate;
 
 INSERT INTO
