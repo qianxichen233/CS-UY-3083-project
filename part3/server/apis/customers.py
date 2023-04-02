@@ -20,7 +20,7 @@ def get_customer_info():
         return {"msg": "username not match"}, 401
 
     if(params == False):
-        return {"msg", "missing field"}, 422
+        return {"msg": "missing field"}, 422
     
     if(params['type'] == 'customer'):
         cursor = mydb.cursor()
