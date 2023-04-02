@@ -18,3 +18,5 @@ insert into airport (code, name, city, country, airport_type) values ('MKP', 'Ma
 insert into airport (code, name, city, country, airport_type) values ('MOQ', 'Morondava Airport', 'Prachatice', 'Czech Republic', 'both');
 insert into airport (code, name, city, country, airport_type) values ('LDZ', 'Londolozi Airport', 'Longmen', 'China', 'international');
 insert into airport (code, name, city, country, airport_type) values ('HYA', 'Barnstable Municipal Boardman Polando Field', 'Qijia', 'China', 'domestic');
+insert into airport (code, name, city, country, airport_type) values ('PVG', 'Shanghai Pudong International Airport', 'Shanghai', 'China', 'both');
+insert into airport (code, name, city, country, airport_type) values ('JFK', 'John F. Kennedy International Airport', 'New york', 'United States', 'both');
