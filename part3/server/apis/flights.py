@@ -6,6 +6,7 @@ import json
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, unset_jwt_cookies, jwt_required
 
 from database import mydb
+from constant import valid_status
 
 flights_api = Blueprint("flights_api", __name__)
 
@@ -182,7 +183,53 @@ def get_flights_status():
 
 @flights_api.route("/status", methods=["POST"])
 def update_flights_status():
-    return {"msg": "under development"}
+    body = utility.convertBody(
+        json.loads(request.data.decode("UTF-8")),
+        {
+            "status": "status",
+            "airline_name": "airline_name",
+            "flight_number": "flight_number",
+            "departure_date_time": "departure_date_time",
+        },
+    )
+
+    if body == False:
+        return {"msg": "missing field"}, 422
+
+    cursor = mydb.cursor()
+
+    cursor.execute(
+        """
+            SELECT *
+                FROM flight
+                WHERE airline_name = %(airline_name)s
+                    AND flight_number = %(flight_number)s
+                    AND departure_date_time = %(departure_date_time)s
+        """,
+        body,
+    )
+
+    result = cursor.fetchall()
+    if len(result) == 0:
+        return {"msg": "flight not found"}, 404
+
+    if body["status"] not in valid_status:
+        return {"msg": "status not exist"}, 409
+
+    cursor.execute(
+        """
+            UPDATE flight
+                SET status = %(status)s
+                WHERE airline_name = %(airline_name)s
+                    AND flight_number = %(flight_number)s
+                    AND departure_date_time = %(departure_date_time)s
+        """,
+        body,
+    )
+
+    mydb.commit()
+
+    return {"msg": "success"}
 
 
 @flights_api.route("/future", methods=["GET"])

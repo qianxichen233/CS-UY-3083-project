@@ -471,8 +471,7 @@ possible body parameters:
 	status
 	airline_name
 	flight_number
-	arrival_date
-	departure_date
+	departure_date_time
 }
 
 feature:
