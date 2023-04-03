@@ -1,0 +1,1 @@
+insert into airline_staff (username, password, first_name, last_name, date_of_birth, airline_name) values ('admin', '$2a$12$j9NS.B/2DSps/8URF8dGgeVNU88kXoqMuH/5M2.8YRezL5LWKU0p.', 'Qianxi', 'Chen', '2000-01-01', 'Jet Blue');
