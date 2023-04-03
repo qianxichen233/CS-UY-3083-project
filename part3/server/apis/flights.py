@@ -3,102 +3,159 @@ from flask import Blueprint, request, jsonify
 import utility
 import json
 
-from flask_jwt_extended import create_access_token,get_jwt,get_jwt_identity, \
-                               unset_jwt_cookies, jwt_required
+from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, unset_jwt_cookies, jwt_required
 
 from database import mydb
 
-flights_api = Blueprint('flights_api', __name__)
+flights_api = Blueprint("flights_api", __name__)
 
-@flights_api.route("/", methods = ["GET"])
-#@jwt_required(locations='cookies')
+
+@flights_api.route("/", methods=["GET"])
+# @jwt_required(locations='cookies')
 def get_flights():
-    params = utility.convertParams(request.args, {
-        "airline": "airline",
-        "start_date?": "start_date",
-        "end_date?":"end_date",
-        "source_city?":"source_city",
-        "source_airport?":"source_airport",
-        "destination_city?":"destination_city",
-        "destination_airport?":"destination_airport"
-    })
+    params = utility.convertParams(
+        request.args,
+        {
+            "airline": "airline",
+            "start_date?": "start_date",
+            "end_date?": "end_date",
+            "source_city?": "source_city",
+            "source_airport?": "source_airport",
+            "destination_city?": "destination_city",
+            "destination_airport?": "destination_airport",
+        },
+    )
 
-    if(params == False):
+    if params == False:
         return {"msg", "missing field"}, 422
-    
+
+    selector = utility.createSqlQuery(
+        [
+            {"name": "airline", "selector": "airline_name = %s"},
+            {"name": "start_date", "selector": "departure_date_time > %s"},
+            {"name": "end_date", "selector": "departure_date_time < %s"},
+            {"name": "source_city", "selector": "departure.city = %s"},
+            {"name": "destination_city", "selector": "arrival.city = %s"},
+            {"name": "source_airport", "selector": "departure_airport_code = %s"},
+            {"name": "destination_airport", "selector": "arrival_airport_code = %s"},
+        ],
+        params,
+    )
+
     cursor = mydb.cursor()
-    cursor.execute("""
-            SELECT airline, start_date, end_date, source_city,
-                    source_airport, destination_city, destination_airport
-                FROM flight
-                WHERE airline_name=%(airline)s
-        """, {
-            "airline": params['airline']
-        })
+    cursor.execute(
+        """
+            SELECT airline_name, flight_number, departure_date_time, departure_airport_code,
+                    arrival_date_time, arrival_airport_code, base_price, status,
+                    id, seat_number, manufacturing_company, manufacturing_date, age
+                FROM flight NATURAL JOIN airplane JOIN airport AS arrival JOIN airport AS departure
+                WHERE airplane.ID = airplane_ID
+                    AND arrival.code = arrival_airport_code
+                    AND departure.code = departure_airport_code
+                    AND {selector}
+        """.format(
+            selector=selector
+        ),
+        params,
+    )
 
-    return {'msg': 'under development'}
+    result = cursor.fetchall()
 
-@flights_api.route("/", methods = ["PUT"])
+    response = {"flights": []}
+
+    for item in result:
+        response["flights"].append(
+            {
+                "airline_name": item[0],
+                "flight_number": item[1],
+                "departure_date_time": item[2],
+                "departure_airport_code": item[3],
+                "arrival_date_time": item[4],
+                "arrival_airport_code": item[5],
+                "base_price": item[6],
+                "status": item[7],
+                "airplane": {
+                    "id": item[8],
+                    "seat_number": item[9],
+                    "manufacturing_company": item[10],
+                    "manufacturing_date": item[11],
+                    "age": item[12],
+                },
+            }
+        )
+
+    return response
+
+
+@flights_api.route("/", methods=["PUT"])
 def create_flights():
-    return {'msg': 'under development'}
+    return {"msg": "under development"}
 
-@flights_api.route("/status", methods = ["GET"])
+
+@flights_api.route("/status", methods=["GET"])
 def get_flights_status():
-    params = utility.convertParams(request.args, {
-        "airline_name": "airline_name",
-        "flight_number": "flight_number",
-        "departure_date":"departure_date_time",
-    })
+    params = utility.convertParams(
+        request.args,
+        {
+            "airline_name": "airline_name",
+            "flight_number": "flight_number",
+            "departure_date": "departure_date_time",
+        },
+    )
 
-    if(params == False):
+    if params == False:
         return {"msg": "missing field"}, 422
-    
-    
+
     cursor = mydb.cursor()
-    cursor.execute("""
+    cursor.execute(
+        """
             SELECT airline_name,flight_number,departure_date_time,departure_airport_code,
                 arrival_date_time,arrival_airport_code,base_price,status,id, seat_number,
 		        manufacturing_company,manufacturing_date, age
-                FROM flight natural join airplane
+                FROM flight NATURAL JOIN airplane
                 WHERE airline_name=%(airline)s and flight_number=%(flightnum)s and departure_date_time=%(de_date)s
                 and airplane.ID = airplane_ID
-        """, {
-            "airline": params['airline_name'],
-            "flightnum": params['flight_number'], 
-            "de_date": params["departure_date"]
-        })
-    
+        """,
+        {"airline": params["airline_name"], "flightnum": params["flight_number"], "de_date": params["departure_date"]},
+    )
+
     result = cursor.fetchall()
+    if len(result) == 0:
+        return {"msg": "flight not exist"}, 404
+
     items = result[0]
-    
+
     response = {
-        'airline_name': items[0],
+        "airline_name": items[0],
         "flight_number": items[1],
-        "departure_date_time":items[2],
-	    "departure_airport_code" :items[3],
-	    "arrival_date_ti":items[4],
-	    "arrival_airport_code":items[5],
-	    "base_price":items[6],
-	    "status":items[7],
+        "departure_date_time": items[2],
+        "departure_airport_code": items[3],
+        "arrival_date_ti": items[4],
+        "arrival_airport_code": items[5],
+        "base_price": items[6],
+        "status": items[7],
         "airplane": {
-            "id":items[8],
-            "seat_number":items[9],
-            "manufacturing_company":items[10],
-            "manufacturing_date":items[11],
-            "age":items[12]
-        }
+            "id": items[8],
+            "seat_number": items[9],
+            "manufacturing_company": items[10],
+            "manufacturing_date": items[11],
+            "age": items[12],
+        },
     }
 
     return response
 
-@flights_api.route("/status", methods = ["POST"])
+
+@flights_api.route("/status", methods=["POST"])
 def update_flights_status():
-    return {'msg': 'under development'}
+    return {"msg": "under development"}
 
-@flights_api.route("/future", methods = ["GET"])
+
+@flights_api.route("/future", methods=["GET"])
 def get_future_flights():
-    return {'msg': 'under development'}
+    return {"msg": "under development"}
 
-@flights_api.route("/schedule", methods = ["GET"])
+
+@flights_api.route("/schedule", methods=["GET"])
 def get_scheduled_flights():
-    return {'msg': 'under development'}
+    return {"msg": "under development"}

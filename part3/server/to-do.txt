@@ -389,11 +389,9 @@ return object structure:
 	flights: [
 		airline_name,
 		flight_number,
-		departure_date,
-		departure_time,
+		departure_date_time,
 		departure_airport_code,
-		arrival_date,
-		arrival_time,
+		arrival_date_time,
 		arrival_airport_code,
 		base_price,
 		status,

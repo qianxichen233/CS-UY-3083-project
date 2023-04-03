@@ -94,7 +94,7 @@ def generate_tickets(count: int, path: str):
 			fields["first_name"], fields["last_name"], fields["date_of_birth"], fields["email"]
 		] = retrieve_random(customers, ["first_name", "last_name", "date_of_birth", "email"])
 
-		if(random.random() < 0.8):
+		if(random.random() < 0.2):
 			fields['calculated_price'] = "{:.2f}".format(float(base_price) * 1.25)
 		else:
 			fields['calculated_price'] = base_price
