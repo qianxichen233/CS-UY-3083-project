@@ -89,7 +89,41 @@ def get_flights():
 
 @flights_api.route("/", methods=["PUT"])
 def create_flights():
-    return {"msg": "under development"}
+    body = utility.convertBody(
+        json.loads(request.data.decode("UTF-8")),
+        {
+            "airline_name": "airline_name",
+            "flight_number": "flight_number",
+            "departure_date_time": "departure_date_time",
+            "departure_airport_code": "departure_airport_code",
+            "arrival_date_time": "arrival_date_time",
+            "arrival_airport_code": "arrival_airport_code",
+            "base_price": "base_price",
+            "airplane_ID": "airplane_id",
+        },
+    )
+
+    if body == False:
+        return {"msg": "missing field"}, 422
+
+    cursor = mydb.cursor()
+
+    cursor.execute(
+        """
+            INSERT INTO flight
+                VALUES (%(airline_name)s, %(flight_number)s, %(departure_date_time)s,
+                        %(departure_airport_code)s, %(arrival_date_time)s, %(arrival_airport_code)s,
+                        %(base_price)s, %(airplane_ID)s, "scheduled");
+        """,
+        body,
+    )
+
+    mydb.commit()
+
+    # result = cursor.fetchall()
+    # print(result)
+
+    return {"msg": "success"}
 
 
 @flights_api.route("/status", methods=["GET"])
