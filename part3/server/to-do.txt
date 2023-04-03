@@ -51,11 +51,9 @@ return object structure:
 		{
 			airline_name,
 			flight_number,
-			departure_date,
-			departure_time,
+			departure_date_time,
 			departure_airport_code,
-			arrival_date,
-			arrival_time,
+			arrival_date_time,
 			arrival_airport_code,
 			base_price,
 			airplane: {
@@ -71,11 +69,9 @@ return object structure:
 		{
 			airline_name,
 			flight_number,
-			departure_date,
-			departure_time,
+			departure_date_time,
 			departure_airport_code,
-			arrival_date,
-			arrival_time,
+			arrival_date_time,
 			arrival_airport_code,
 			base_price,
 			airplane: {
@@ -105,7 +101,7 @@ return object structure:
 	flight_number,
 	departure_date_time,
 	departure_airport_code,
-	arrival_date_ti,
+	arrival_date_time,
 	arrival_airport_code,
 	base_price,
 	status,
@@ -204,11 +200,9 @@ return object structure:
 		{
 			airline_name,
 			flight_number,
-			departure_date,
-			departure_time,
+			departure_date_time,
 			departure_airport_code,
-			arrival_date,
-			arrival_time,
+			arrival_date_time,
 			arrival_airport_code,
 			base_price,
 			actual_price,
@@ -304,8 +298,7 @@ possible body parameters:
 	email
 	airline_name
 	flight_number
-	arrival_date
-	departure_date
+	departure_date_time
 	rating
 	comment
 }
@@ -409,7 +402,7 @@ return object structure:
 possible query parameters:
 	airline
 	flight_number
-	departure_date
+	departure_date_time
 
 feature:
 NEEDS AUTHENTICATION
@@ -548,8 +541,7 @@ return object structure:
 possible query parameters:
 	airline_name
 	flight_number
-	arrival_date
-	departure_date
+	departure_date_time
 
 feature:
 NEEDS AUTHENTICATION

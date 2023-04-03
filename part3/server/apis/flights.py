@@ -241,12 +241,18 @@ def get_future_flights():
             "source_airport?": "source_airport",
             "destination_city?": "destination_city",
             "destination_airport?": "destination_airport",
-            "departure_date?": "departure_date",
+            "departure_date": "departure_date",
             "return_date?": "return_date",
         },
     )
 
     if params == False:
+        return {"msg": "missing field"}, 422
+
+    if not params["source_city"] and not params["source_airport"]:
+        return {"msg": "missing field"}, 422
+
+    if not params["destination_city"] and not params["destination_airport"]:
         return {"msg": "missing field"}, 422
 
     selector_to = utility.createSqlQuery(
