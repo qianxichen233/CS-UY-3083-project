@@ -54,9 +54,6 @@ def createSqlQuery(scheme: list, fields: dict):
             continue
 
         selector = item["selector"].replace("%s", f"%({item['name']})s")
-        sql += selector + " AND "
-
-    if len(sql) > 0:
-        sql = sql[:-5]
+        sql += " AND " + selector
 
     return sql

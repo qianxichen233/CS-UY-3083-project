@@ -53,7 +53,7 @@ def get_flights():
                 WHERE airplane.ID = airplane_ID
                     AND arrival.code = arrival_airport_code
                     AND departure.code = departure_airport_code
-                    AND {selector}
+                    {selector}
         """.format(
             selector=selector
         ),
@@ -234,7 +234,129 @@ def update_flights_status():
 
 @flights_api.route("/future", methods=["GET"])
 def get_future_flights():
-    return {"msg": "under development"}
+    params = utility.convertParams(
+        request.args,
+        {
+            "source_city?": "source_city",
+            "source_airport?": "source_airport",
+            "destination_city?": "destination_city",
+            "destination_airport?": "destination_airport",
+            "departure_date?": "departure_date",
+            "return_date?": "return_date",
+        },
+    )
+
+    if params == False:
+        return {"msg": "missing field"}, 422
+
+    selector_to = utility.createSqlQuery(
+        [
+            {"name": "source_city", "selector": "departure.city = %s"},
+            {"name": "source_airport", "selector": "departure_airport_code = %s"},
+            {"name": "destination_city", "selector": "arrival.city = %s"},
+            {"name": "destination_airport", "selector": "arrival_airport_code = %s"},
+            {"name": "departure_date", "selector": "DATE(departure_date_time) = %s"},
+        ],
+        params,
+    )
+
+    cursor = mydb.cursor()
+
+    cursor.execute(
+        """
+        SELECT airline_name, flight_number, departure_date_time, departure_airport_code,
+                    arrival_date_time, arrival_airport_code, base_price, status,
+                    id, seat_number, manufacturing_company, manufacturing_date, age
+                FROM flight NATURAL JOIN airplane JOIN airport AS arrival JOIN airport AS departure
+                WHERE airplane.ID = airplane_ID
+                    AND arrival.code = arrival_airport_code
+                    AND departure.code = departure_airport_code
+                    {selector_to}
+        """.format(
+            selector_to=selector_to
+        ),
+        params,
+    )
+
+    response = {"flights_to": []}
+
+    result = cursor.fetchall()
+
+    for item in result:
+        response["flights_to"].append(
+            {
+                "airline_name": item[0],
+                "flight_number": item[1],
+                "departure_date_time": item[2],
+                "departure_airport_code": item[3],
+                "arrival_date_time": item[4],
+                "arrival_airport_code": item[5],
+                "base_price": item[6],
+                "status": item[7],
+                "airplane": {
+                    "id": item[8],
+                    "seat_number": item[9],
+                    "manufacturing_company": item[10],
+                    "manufacturing_date": item[11],
+                    "age": item[12],
+                },
+            }
+        )
+
+    if "return_date" in params and params["return_date"] != None:
+        selector_back = utility.createSqlQuery(
+            [
+                {"name": "destination_city", "selector": "departure.city = %s"},
+                {"name": "destination_airport", "selector": "departure_airport_code = %s"},
+                {"name": "source_city", "selector": "arrival.city = %s"},
+                {"name": "source_airport", "selector": "arrival_airport_code = %s"},
+                {"name": "return_date", "selector": "DATE(departure_date_time) = %s"},
+            ],
+            params,
+        )
+
+        cursor.execute(
+            """
+            SELECT airline_name, flight_number, departure_date_time, departure_airport_code,
+                        arrival_date_time, arrival_airport_code, base_price, status,
+                        id, seat_number, manufacturing_company, manufacturing_date, age
+                    FROM flight NATURAL JOIN airplane JOIN airport AS arrival JOIN airport AS departure
+                    WHERE airplane.ID = airplane_ID
+                        AND arrival.code = arrival_airport_code
+                        AND departure.code = departure_airport_code
+                        {selector_back}
+            """.format(
+                selector_back=selector_back
+            ),
+            params,
+        )
+
+        response["flights_from"] = []
+
+        result = cursor.fetchall()
+
+        for item in result:
+            response["flights_from"].append(
+                {
+                    "airline_name": item[0],
+                    "flight_number": item[1],
+                    "departure_date_time": item[2],
+                    "departure_airport_code": item[3],
+                    "arrival_date_time": item[4],
+                    "arrival_airport_code": item[5],
+                    "base_price": item[6],
+                    "status": item[7],
+                    "airplane": {
+                        "id": item[8],
+                        "seat_number": item[9],
+                        "manufacturing_company": item[10],
+                        "manufacturing_date": item[11],
+                        "age": item[12],
+                    },
+                }
+            )
+
+    return response
 
 
 @flights_api.route("/schedule", methods=["GET"])
