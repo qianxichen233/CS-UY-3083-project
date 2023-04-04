@@ -198,6 +198,7 @@ return object structure:
 {
 	flights: [
 		{
+			ticket_id,
 			airline_name,
 			flight_number,
 			departure_date_time,
@@ -248,18 +249,18 @@ possible body parameters:
 	card_number
 	card_name
 	expiration_date
-
+	first_name
+	last_name
+	date_of_birth
 	to: {
 		airline_name
 		flight_number
-		arrival_date
-		departure_date
+		departure_date_time
 	}
 	(if type is round-trip) back: {
 		airline_name
 		flight_number
-		arrival_date
-		departure_date
+		departure_date_time
 	}
 }
 
@@ -276,11 +277,7 @@ return object structure:
 8. POST api/tickets/unregister
 possible body parameters:
 {
-	email
-	airline_name
-	flight_number
-	arrival_date
-	departure_date
+	ticket_id
 }
 
 feature:
