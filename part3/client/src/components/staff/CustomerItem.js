@@ -26,16 +26,28 @@ const CustomerItem = ({ customer, ticket }) => {
                     <span>Address</span>
                     <div>
                         <div>
-                            <span>State</span>
-                            <span>{customer.address.state}</span>
+                            {!!customer.address.state && (
+                                <>
+                                    <span>State</span>
+                                    <span>{customer.address.state}</span>
+                                </>
+                            )}
                         </div>
                         <div>
-                            <span>City</span>
-                            <span>{customer.address.city}</span>
+                            {!!customer.address.city && (
+                                <>
+                                    <span>City</span>
+                                    <span>{customer.address.city}</span>
+                                </>
+                            )}
                         </div>
                         <div>
-                            <span>Zip Code</span>
-                            <span>{customer.address.zip_code}</span>
+                            {!!customer.address.zip_code && (
+                                <>
+                                    <span>Zip Code</span>
+                                    <span>{customer.address.zip_code}</span>
+                                </>
+                            )}
                         </div>
                     </div>
                 </section>

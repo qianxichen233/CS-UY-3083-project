@@ -42,7 +42,7 @@ def get_flights():
 
     selector = utility.createSqlQuery(
         [
-            {"name": "airline", "selector": "airline_name = %s"},
+            {"name": "airline", "selector": "flight.airline_name = %s"},
             {"name": "start_date", "selector": "DATE(departure_date_time) > %s"},
             {"name": "end_date", "selector": "DATE(departure_date_time) < %s"},
             {"name": "source_city", "selector": "departure.city = %s"},
@@ -55,10 +55,10 @@ def get_flights():
 
     cursor.execute(
         """
-            SELECT airline_name, flight_number, departure_date_time, departure_airport_code,
+            SELECT flight.airline_name, flight_number, departure_date_time, departure_airport_code,
                     arrival_date_time, arrival_airport_code, base_price, status,
                     id, seat_number, manufacturing_company, manufacturing_date, age
-                FROM flight NATURAL JOIN airplane JOIN airport AS arrival JOIN airport AS departure
+                FROM flight JOIN airplane JOIN airport AS arrival JOIN airport AS departure
                 WHERE airplane.ID = airplane_ID
                     AND arrival.code = arrival_airport_code
                     AND departure.code = departure_airport_code
@@ -70,6 +70,7 @@ def get_flights():
     )
 
     result = cursor.fetchall()
+    cursor.close()
 
     response = {"flights": []}
 
@@ -137,6 +138,7 @@ def create_flights():
     )
 
     mydb.commit()
+    cursor.close()
 
     # result = cursor.fetchall()
     # print(result)
@@ -162,11 +164,11 @@ def get_flights_status():
     cursor = mydb.cursor()
     cursor.execute(
         """
-            SELECT airline_name,flight_number,departure_date_time,departure_airport_code,
+            SELECT flight.airline_name,flight_number,departure_date_time,departure_airport_code,
                 arrival_date_time,arrival_airport_code,base_price,status,id, seat_number,
 		        manufacturing_company,manufacturing_date, age
-                FROM flight NATURAL JOIN airplane
-                WHERE airline_name=%(airline_name)s
+                FROM flight JOIN airplane
+                WHERE flight.airline_name=%(airline_name)s
                     AND flight_number=%(flight_number)s
                     AND departure_date_time=%(departure_date_time)s
                     AND airplane.ID = airplane_ID
@@ -175,6 +177,7 @@ def get_flights_status():
     )
 
     result = cursor.fetchall()
+    cursor.close()
     if len(result) == 0:
         return {"msg": "flight not exist"}, 404
 
@@ -258,6 +261,7 @@ def update_flights_status():
     )
 
     mydb.commit()
+    cursor.close()
 
     return {"msg": "success"}
 
@@ -300,10 +304,10 @@ def get_future_flights():
 
     cursor.execute(
         """
-        SELECT airline_name, flight_number, departure_date_time, departure_airport_code,
+        SELECT flight.airline_name, flight_number, departure_date_time, departure_airport_code,
                     arrival_date_time, arrival_airport_code, base_price, status,
                     id, seat_number, manufacturing_company, manufacturing_date, age
-                FROM flight NATURAL JOIN airplane JOIN airport AS arrival JOIN airport AS departure
+                FROM flight JOIN airplane JOIN airport AS arrival JOIN airport AS departure
                 WHERE airplane.ID = airplane_ID
                     AND arrival.code = arrival_airport_code
                     AND departure.code = departure_airport_code
@@ -353,10 +357,10 @@ def get_future_flights():
 
         cursor.execute(
             """
-            SELECT airline_name, flight_number, departure_date_time, departure_airport_code,
+            SELECT flight.airline_name, flight_number, departure_date_time, departure_airport_code,
                         arrival_date_time, arrival_airport_code, base_price, status,
                         id, seat_number, manufacturing_company, manufacturing_date, age
-                    FROM flight NATURAL JOIN airplane JOIN airport AS arrival JOIN airport AS departure
+                    FROM flight JOIN airplane JOIN airport AS arrival JOIN airport AS departure
                     WHERE airplane.ID = airplane_ID
                         AND arrival.code = arrival_airport_code
                         AND departure.code = departure_airport_code

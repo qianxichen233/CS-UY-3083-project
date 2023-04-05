@@ -3,8 +3,12 @@ import Form from "../UI/Form";
 
 import styles from "../flights/StatusSearch.module.scss";
 
-const convertDate = (date) => {
-    return new Date(date).toISOString().split("T")[0];
+const convertDate = (datetime) => {
+    return new Date(datetime).toISOString().split("T")[0];
+};
+
+const convertTime = (datetime) => {
+    return new Date(datetime).toISOString().split("T")[1].split(".")[0];
 };
 
 const FlightCustomerSearch = (props) => {
@@ -13,8 +17,11 @@ const FlightCustomerSearch = (props) => {
         flight_number: props.default?.flight_number
             ? props.default.flight_number
             : "",
-        departure: props.default?.departure_date
-            ? convertDate(props.default.departure_date)
+        departure_date: props.default?.departure_date
+            ? convertDate(props.default.departure_date_time)
+            : "",
+        departure_time: props.default?.departure_time
+            ? convertTime(props.default.departure_date_time)
             : "",
     });
 
@@ -32,7 +39,8 @@ const FlightCustomerSearch = (props) => {
             body: {
                 airline: filter.airline,
                 flight_number: filter.flight_number,
-                departure: filter.departure,
+                departure_date: filter.departure_date,
+                departure_time: filter.departure_time,
             },
         });
     };
@@ -45,13 +53,6 @@ const FlightCustomerSearch = (props) => {
                     inputs={[
                         {
                             type: "text",
-                            label: "Airline Name",
-                            value: filter.airline,
-                            onChange: onFilterChange.bind(null, "airline"),
-                            required: "Airline Name is Required",
-                        },
-                        {
-                            type: "text",
                             label: "Flight Number",
                             value: filter.flight_number,
                             onChange: onFilterChange.bind(
@@ -61,11 +62,30 @@ const FlightCustomerSearch = (props) => {
                             required: "Flight Number is Required",
                         },
                         {
+                            type: "empty",
+                        },
+                        {
                             type: "date",
                             label: "Departure Date",
-                            value: filter.departure,
-                            onChange: onFilterChange.bind(null, "departure"),
+                            value: filter.departure_date,
+                            onChange: onFilterChange.bind(
+                                null,
+                                "departure_date"
+                            ),
                             required: "Departure Date is Required",
+                        },
+                        {
+                            type: "time",
+                            props: {
+                                step: 1,
+                            },
+                            label: "Departure Time",
+                            value: filter.departure_time,
+                            onChange: onFilterChange.bind(
+                                null,
+                                "departure_time"
+                            ),
+                            required: "Departure Time is Required",
                         },
                     ]}
                     submit={{

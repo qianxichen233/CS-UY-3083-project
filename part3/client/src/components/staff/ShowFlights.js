@@ -205,9 +205,10 @@ const ShowFlights = (props) => {
                     `http://${process.env.REACT_APP_backend_baseurl}/api/customer/all`,
                     {
                         params: {
-                            airline: body.airline,
+                            airline: user.airline,
                             flight_number: body.flight_number,
-                            departure_date: body.departure_date,
+                            departure_date_time:
+                                body.departure_date + " " + body.departure_time,
                         },
                         withCredentials: true,
                     }
@@ -215,7 +216,7 @@ const ShowFlights = (props) => {
 
                 setResult({
                     type: "customer",
-                    content: result.data.customers,
+                    content: result.data,
                 });
             } catch (e) {
                 console.error(e.response?.data.msg);

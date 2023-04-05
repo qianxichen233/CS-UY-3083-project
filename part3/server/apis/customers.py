@@ -149,8 +149,88 @@ def get_customer_info():
 
 
 @customers_api.route("/all", methods=["GET"])
+@jwt_required(locations="cookies")
 def get_customers():
-    return {"msg": "under development"}
+    params = utility.convertParams(
+        request.args,
+        {"airline": "airline", "flight_number": "flight_number", "departure_date_time": "departure_date_time"},
+        auto_date=True,
+    )
+
+    if params == False:
+        return {"msg": "missing field"}, 422
+
+    identity = get_jwt_identity()
+    if identity["type"] != "staff":
+        return {"msg": "staff only"}, 401
+
+    cursor = mydb.cursor()
+
+    if utility.getStaff(cursor, get_jwt_identity()["username"], "airline_name")[0] != params["airline"]:
+        return {"msg": "wrong type"}, 401
+
+    cursor.execute(
+        """
+            SELECT customer.email, customer.first_name, customer.last_name, building_number,
+                        street_name, apartment_number, city, state,
+                        zip_code, passport_number, passport_expiration,
+                        passport_country, customer.date_of_birth, purchased_date_time,
+                        calculated_price
+                FROM ticket JOIN customer
+                WHERE ticket.email = customer.email
+                    AND airline_name = %(airline)s
+                    AND flight_number = %(flight_number)s
+                    AND departure_date_time = %(departure_date_time)s
+        """,
+        params,
+    )
+
+    response = {"customers": []}
+
+    result = cursor.fetchall()
+    for item in result:
+        cursor.execute(
+            """
+                SELECT phone_number
+                    FROM customer_phone_number
+                    WHERE email = %(email)s
+            """,
+            {"email": item[0]},
+        )
+
+        phone_numbers = []
+
+        for phone_number in cursor.fetchall():
+            phone_numbers.append(phone_number[0])
+
+        response["customers"].append(
+            {
+                "email": item[0],
+                "first_name": item[1],
+                "last_name": item[2],
+                "phone_numbers": phone_numbers,
+                "address": {
+                    "building_number": item[3],
+                    "street_name": item[4],
+                    "apartment_number": item[5],
+                    "city": item[6],
+                    "state": item[7],
+                    "zip_code": item[8],
+                },
+                "passport": {"number": item[9], "expiration": item[10], "country": item[11]},
+                "date_of_birth": item[12],
+                "purchased_date": item[13],
+                "price": item[14],
+            }
+        )
+
+    response["flight"] = utility.getFlight(
+        cursor, params["airline"], params["flight_number"], params["departure_date_time"]
+    )
+
+    cursor.close()
+
+    return response
 
 
 @customers_api.route("/frequent", methods=["GET"])

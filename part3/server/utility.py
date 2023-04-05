@@ -105,3 +105,39 @@ def getStaff(cursor, username, *args):
     )
 
     return cursor.fetchall()[0]
+
+
+def getFlight(cursor, airline, flight_number, departure_date_time):
+    cursor.execute(
+        """
+            SELECT flight.airline_name,flight_number,departure_date_time,departure_airport_code,
+                    arrival_date_time,arrival_airport_code,base_price,status,id, seat_number,
+                    manufacturing_company,manufacturing_date, age
+                    FROM flight JOIN airplane
+                    WHERE flight.airline_name=%(airline_name)s
+                        AND flight_number=%(flight_number)s
+                        AND departure_date_time=%(departure_date_time)s
+                        AND airplane.ID = airplane_ID
+        """,
+        {"airline_name": airline, "flight_number": flight_number, "departure_date_time": departure_date_time},
+    )
+
+    result = cursor.fetchall()[0]
+
+    return {
+        "airline_name": result[0],
+        "flight_number": result[1],
+        "departure_date_time": result[2],
+        "departure_airport_code": result[3],
+        "arrival_date_time": result[4],
+        "arrival_airport_code": result[5],
+        "base_price": result[6],
+        "status": result[7],
+        "airplane": {
+            "id": result[8],
+            "seat_number": result[9],
+            "manufacturing_company": result[10],
+            "manufacturing_date": result[11],
+            "age": result[12],
+        },
+    }

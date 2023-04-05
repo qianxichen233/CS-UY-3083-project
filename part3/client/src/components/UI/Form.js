@@ -13,6 +13,10 @@ const renderInput = ({
     placeholder,
     error,
 }) => {
+    if (type === "empty") {
+        return <div key={key}></div>;
+    }
+
     if (type === "select") {
         return (
             <div key={key} className={styles.input}>
