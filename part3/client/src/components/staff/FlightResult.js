@@ -1,9 +1,10 @@
 import axios from "axios";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FlightItem from "../flights/FlightItem";
 import Button from "../UI/Button";
 import SelectBar from "../UI/SelectBar";
+import { getCookie } from "../../utility";
 
 import styles from "./FlightResult.module.scss";
 
@@ -20,8 +21,14 @@ const FlightResult = ({
     const navigate = useNavigate();
 
     const [status, setStatus] = useState(
-        flights.map((flight) => flight.status)
+        useMemo(() => flights.map((flight) => flight.status), [flights])
     );
+
+    useEffect(() => {
+        setStatus(flights.map((flight) => flight.status));
+    }, [flights]);
+
+    const [maxIndex, setMaxIndex] = useState(3);
 
     const [autoSaveID, setAutoSaveId] = useState(null);
 
@@ -34,10 +41,13 @@ const FlightResult = ({
                     airline_name: flights[index].airline_name,
                     flight_number: flights[index].flight_number,
                     arrival_date: flights[index].arrival_date,
-                    departure_date: flights[index].departure_date,
+                    departure_date_time: flights[index].departure_date_time,
                 },
                 {
                     withCredentials: true,
+                    headers: {
+                        "X-CSRF-TOKEN": getCookie("csrf_access_token"),
+                    },
                 }
             );
         } catch (e) {
@@ -69,8 +79,12 @@ const FlightResult = ({
 
     return (
         <div className={styles.container}>
+            {flights.length === 0 && (
+                <span className={styles.noresult}>No Flights Found</span>
+            )}
             <ul>
                 {flights.map((flight, index) => {
+                    if (index >= maxIndex) return;
                     const key =
                         flight.airline_name +
                         flight.flight_number +
@@ -131,6 +145,16 @@ const FlightResult = ({
                     );
                 })}
             </ul>
+            {flights.length > maxIndex && (
+                <div className={styles.viewmore}>
+                    <Button
+                        text="View More"
+                        onClick={() => {
+                            setMaxIndex((prev) => prev + 3);
+                        }}
+                    />
+                </div>
+            )}
         </div>
     );
 };

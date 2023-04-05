@@ -4,6 +4,7 @@ import utility
 import json
 
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, unset_jwt_cookies, jwt_required
+from flask_cors import cross_origin
 
 from database import mydb
 from constant import valid_status
@@ -12,7 +13,7 @@ flights_api = Blueprint("flights_api", __name__)
 
 
 @flights_api.route("/", methods=["GET"])
-# @jwt_required(locations='cookies')
+@jwt_required(locations="cookies")
 def get_flights():
     params = utility.convertParams(
         request.args,
@@ -25,16 +26,25 @@ def get_flights():
             "destination_city?": "destination_city",
             "destination_airport?": "destination_airport",
         },
+        auto_date=True,
     )
 
     if params == False:
-        return {"msg", "missing field"}, 422
+        return {"msg": "missing field"}, 422
+
+    cursor = mydb.cursor()
+
+    if get_jwt_identity()["type"] != "staff":
+        return {"msg": "staff only"}, 401
+
+    if utility.getStaff(cursor, get_jwt_identity()["username"], "airline_name")[0] != params["airline"]:
+        return {"msg": "airline staff is not authorized to get other airline's information "}, 401
 
     selector = utility.createSqlQuery(
         [
             {"name": "airline", "selector": "airline_name = %s"},
-            {"name": "start_date", "selector": "departure_date_time > %s"},
-            {"name": "end_date", "selector": "departure_date_time < %s"},
+            {"name": "start_date", "selector": "DATE(departure_date_time) > %s"},
+            {"name": "end_date", "selector": "DATE(departure_date_time) < %s"},
             {"name": "source_city", "selector": "departure.city = %s"},
             {"name": "destination_city", "selector": "arrival.city = %s"},
             {"name": "source_airport", "selector": "departure_airport_code = %s"},
@@ -43,7 +53,6 @@ def get_flights():
         params,
     )
 
-    cursor = mydb.cursor()
     cursor.execute(
         """
             SELECT airline_name, flight_number, departure_date_time, departure_airport_code,
@@ -88,7 +97,8 @@ def get_flights():
     return response
 
 
-@flights_api.route("/", methods=["PUT"])
+@flights_api.route("/", methods=["POST"])
+@jwt_required(locations="cookies")
 def create_flights():
     body = utility.convertBody(
         json.loads(request.data.decode("UTF-8")),
@@ -109,6 +119,12 @@ def create_flights():
         return {"msg": "missing field"}, 422
 
     cursor = mydb.cursor()
+
+    if get_jwt_identity()["type"] != "staff":
+        return {"msg": "staff only"}, 401
+
+    if utility.getStaff(cursor, get_jwt_identity()["username"], "airline_name")[0] != body["airline_name"]:
+        return {"msg": "airline staff is not authorized to get other airline's information "}, 401
 
     cursor.execute(
         """
@@ -142,8 +158,6 @@ def get_flights_status():
 
     if params == False:
         return {"msg": "missing field"}, 422
-
-    print(params)
 
     cursor = mydb.cursor()
     cursor.execute(
@@ -188,6 +202,7 @@ def get_flights_status():
 
 
 @flights_api.route("/status", methods=["POST"])
+@jwt_required(locations="cookies")
 def update_flights_status():
     body = utility.convertBody(
         json.loads(request.data.decode("UTF-8")),
@@ -204,6 +219,12 @@ def update_flights_status():
         return {"msg": "missing field"}, 422
 
     cursor = mydb.cursor()
+
+    if get_jwt_identity()["type"] != "staff":
+        return {"msg": "staff only"}, 401
+
+    if utility.getStaff(cursor, get_jwt_identity()["username"], "airline_name")[0] != body["airline_name"]:
+        return {"msg": "airline staff is not authorized to get other airline's information "}, 401
 
     cursor.execute(
         """
@@ -222,6 +243,8 @@ def update_flights_status():
 
     if body["status"] not in valid_status:
         return {"msg": "status not exist"}, 409
+
+    print(body)
 
     cursor.execute(
         """

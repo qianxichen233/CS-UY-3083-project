@@ -132,8 +132,19 @@ const ShowFlights = (props) => {
                 `http://${process.env.REACT_APP_backend_baseurl}/api/flights`,
                 {
                     params: {
-                        from: new Date(),
-                        to: new Date().setDate(new Date().getDate() + 30),
+                        airline: user.airline,
+                        start_date: new Date().toLocaleDateString("en-us", {
+                            year: "numeric",
+                            month: "numeric",
+                            day: "numeric",
+                        }),
+                        end_date: new Date(
+                            new Date().setDate(new Date().getDate() + 30)
+                        ).toLocaleDateString("en-us", {
+                            year: "numeric",
+                            month: "numeric",
+                            day: "numeric",
+                        }),
                     },
                     withCredentials: true,
                 }
@@ -232,16 +243,10 @@ const ShowFlights = (props) => {
         }
     };
 
-    useEffect(() => {
-        //getInitialResult();
-        setResult({
-            type: "customer",
-            content: {
-                customers: dummy_customer,
-                flight: dummy_myflights[0],
-            },
-        });
-    }, []);
+    const onChange = (type) => {
+        if (type === "flight") getInitialResult();
+        else setResult(null);
+    };
 
     const renderResult = (result) => {
         if (!result) return null;
@@ -255,7 +260,7 @@ const ShowFlights = (props) => {
 
     return (
         <div className={styles.container}>
-            <Search onSearch={onSearchHandler} />
+            <Search onSearch={onSearchHandler} onChange={onChange} />
             {renderResult(result)}
         </div>
     );

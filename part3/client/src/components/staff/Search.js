@@ -14,6 +14,10 @@ const Search = (props) => {
     let [searchParams, _] = useSearchParams();
 
     useEffect(() => {
+        props.onChange(type);
+    }, [type]);
+
+    useEffect(() => {
         const tab = searchParams.get("tab");
         if (tab === "flight") setType("flight");
         else if (tab === "customer") setType("customer");

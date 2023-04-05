@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import Form from "../UI/Form";
+import { getCookie } from "../../utility";
 
 const AddFlight = () => {
     const [info, setInfo] = useState({
@@ -25,12 +26,21 @@ const AddFlight = () => {
     };
 
     const onAddHandler = async () => {
-        let result;
+        const body = { ...info };
+        body.departure_date_time =
+            body.departure_date + " " + body.departure_time;
+        body.arrival_date_time = body.arrival_date + " " + body.arrival_time;
+
         try {
-            result = await axios.put(
-                `http://${process.env.REACT_APP_backend_baseurl}/api/flights`,
-                { ...info },
-                { withCredentials: true }
+            const result = await axios.post(
+                `http://${process.env.REACT_APP_backend_baseurl}/api/flights/`,
+                body,
+                {
+                    withCredentials: true,
+                    headers: {
+                        "X-CSRF-TOKEN": getCookie("csrf_access_token"),
+                    },
+                }
             );
 
             setInfo({
@@ -83,6 +93,9 @@ const AddFlight = () => {
                     {
                         type: "time",
                         label: "Departure Time",
+                        props: {
+                            step: "1",
+                        },
                         value: info.departure_time,
                         onChange: onInfoChange.bind(null, "departure_time"),
                         required: "Departure Time is Required",
@@ -98,7 +111,7 @@ const AddFlight = () => {
                         required: "Depart. Port Code is Required",
                     },
                     {
-                        type: "text",
+                        type: "date",
                         label: "Arrival Date",
                         value: info.arrival_date,
                         onChange: onInfoChange.bind(null, "arrival_date"),
@@ -107,6 +120,9 @@ const AddFlight = () => {
                     {
                         type: "time",
                         label: "Arrival Time",
+                        props: {
+                            step: "1",
+                        },
                         value: info.arrival_time,
                         onChange: onInfoChange.bind(null, "arrival_time"),
                         required: "Arrival Time is Required",
