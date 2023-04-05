@@ -8,6 +8,7 @@ const renderInput = ({
     label,
     value,
     options,
+    props,
     onChange,
     placeholder,
     error,
@@ -41,6 +42,7 @@ const renderInput = ({
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
+                {...props}
             />
             <span className={styles.inputError}>{error}</span>
         </div>
@@ -88,6 +90,7 @@ const Form = (props) => {
                         label: input.label,
                         value: input.value,
                         options: input.options,
+                        props: input.props,
                         onChange: onChangeHandler.bind(null, index),
                         placeholder: input.placeholder,
                         error: error?.index === index ? error.error : "",

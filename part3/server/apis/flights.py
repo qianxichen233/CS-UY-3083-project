@@ -108,9 +108,6 @@ def create_flights():
     if body == False:
         return {"msg": "missing field"}, 422
 
-    body["arrival_date_time"] = utility.convertDatetime(body["arrival_date_time"])
-    body["departure_date_time"] = utility.convertDatetime(body["departure_date_time"])
-
     cursor = mydb.cursor()
 
     cursor.execute(
@@ -146,6 +143,8 @@ def get_flights_status():
     if params == False:
         return {"msg": "missing field"}, 422
 
+    print(params)
+
     cursor = mydb.cursor()
     cursor.execute(
         """
@@ -172,7 +171,7 @@ def get_flights_status():
         "flight_number": items[1],
         "departure_date_time": items[2],
         "departure_airport_code": items[3],
-        "arrival_date_ti": items[4],
+        "arrival_date_time": items[4],
         "arrival_airport_code": items[5],
         "base_price": items[6],
         "status": items[7],

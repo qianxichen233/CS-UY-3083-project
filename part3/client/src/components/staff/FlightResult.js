@@ -63,7 +63,7 @@ const FlightResult = ({
 
     const onClickHandler = (flight) => {
         navigate(
-            `/comment?airline=${flight.airline_name}&flight=${flight.flight_number}&departure=${flight.departure_date}`
+            `/comment?airline=${flight.airline_name}&flight=${flight.flight_number}&departure=${flight.departure_date_time}`
         );
     };
 
@@ -74,7 +74,7 @@ const FlightResult = ({
                     const key =
                         flight.airline_name +
                         flight.flight_number +
-                        flight.departure_date;
+                        flight.departure_date_time;
                     return (
                         <Fragment key={key}>
                             <FlightItem

@@ -7,7 +7,8 @@ const StatusSearch = (props) => {
     const [filter, setFilter] = useState({
         airline: "",
         flight_number: "",
-        departure: "",
+        departure_date: "",
+        departure_time: "",
     });
 
     const onFilterChange = (property, value) => {
@@ -24,7 +25,8 @@ const StatusSearch = (props) => {
             body: {
                 airline: filter.airline,
                 flight_number: filter.flight_number,
-                departure: filter.departure,
+                departure_date: filter.departure_date,
+                departure_time: filter.departure_time,
             },
         });
     };
@@ -55,9 +57,25 @@ const StatusSearch = (props) => {
                         {
                             type: "date",
                             label: "Departure Date",
-                            value: filter.departure,
-                            onChange: onFilterChange.bind(null, "departure"),
+                            value: filter.departure_date,
+                            onChange: onFilterChange.bind(
+                                null,
+                                "departure_date"
+                            ),
                             required: "Departure Date is Required",
+                        },
+                        {
+                            type: "time",
+                            props: {
+                                step: "1",
+                            },
+                            label: "Departure Time",
+                            value: filter.departure_time,
+                            onChange: onFilterChange.bind(
+                                null,
+                                "departure_time"
+                            ),
+                            required: "Departure Time is Required",
                         },
                     ]}
                     submit={{

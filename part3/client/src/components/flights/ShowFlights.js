@@ -201,7 +201,8 @@ const ShowFlights = (props) => {
                         params: {
                             airline_name: body.airline,
                             flight_number: body.flight_number,
-                            departure_date: body.departure,
+                            departure_date_time:
+                                body.departure_date + " " + body.departure_time,
                         },
                     }
                 );
@@ -252,6 +253,10 @@ const ShowFlights = (props) => {
         }
     };
 
+    const clearResult = () => {
+        setResult(null);
+    };
+
     const renderSubpage = (result) => {
         if (result?.type === "flight")
             return <FlightsSubpage flights={result.content} />;
@@ -266,7 +271,7 @@ const ShowFlights = (props) => {
 
     return (
         <div className={styles.container}>
-            <Search onSearch={onSearchHandler} />
+            <Search onSearch={onSearchHandler} onChange={clearResult} />
             {renderSubpage(result)}
         </div>
     );

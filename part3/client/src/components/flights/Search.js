@@ -20,6 +20,10 @@ const Search = (props) => {
         else if (tab === "myflight") setType("myflight");
     }, [searchParams]);
 
+    useEffect(() => {
+        props.onChange();
+    }, [type]);
+
     const types = [
         {
             id: "flight",
