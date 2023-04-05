@@ -144,7 +144,7 @@ const ShowFlights = (props) => {
                 content: result.data.flights,
             });
         } catch (e) {
-            console.log(e.response.data.msg);
+            console.error(e.response?.data.msg);
         }
     };
 
@@ -186,7 +186,7 @@ const ShowFlights = (props) => {
                     content: result.data.flights,
                 });
             } catch (e) {
-                console.log(e.response.data.msg);
+                console.error(e.response?.data.msg);
             }
         } else if (type === "customer") {
             try {
@@ -207,7 +207,7 @@ const ShowFlights = (props) => {
                     content: result.data.customers,
                 });
             } catch (e) {
-                console.log(e.response.data.msg);
+                console.error(e.response?.data.msg);
             }
         } else if (type === "customer_flight") {
             try {
@@ -227,7 +227,7 @@ const ShowFlights = (props) => {
                     content: result.data.flights,
                 });
             } catch (e) {
-                console.log(e.response.data.msg);
+                console.error(e.response?.data.msg);
             }
         }
     };

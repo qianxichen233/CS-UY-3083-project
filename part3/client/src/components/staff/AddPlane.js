@@ -44,8 +44,8 @@ const AddPlane = () => {
                 manufacturing_date: "",
                 age: "",
             });
-        } catch {
-            console.log(result.data.msg);
+        } catch (e) {
+            console.error(e.response?.data.msg);
         }
     };
 

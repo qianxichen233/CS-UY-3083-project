@@ -39,8 +39,8 @@ const MakeComment = (props) => {
             );
 
             window.location = "/?tab=myflight";
-        } catch {
-            console.log(result.data.msg);
+        } catch (e) {
+            console.error(e.response?.data.msg);
         }
     };
 

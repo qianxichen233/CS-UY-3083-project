@@ -18,7 +18,7 @@ const Logout = () => {
                 }
             );
         } catch (e) {
-            console.log(e.data.msg);
+            console.error(e.response?.data.msg);
         } finally {
             removeUser();
         }

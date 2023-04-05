@@ -1,4 +1,11 @@
-def convertBody(body, format):
+from dateutil import parser
+
+
+def convertDatetime(time):
+    return parser.parse(time).strftime("%Y-%m-%d %H:%M:%S")
+
+
+def convertBody(body, format, **kwargs):
     result = {}
 
     for item in format.keys():
@@ -19,12 +26,15 @@ def convertBody(body, format):
             else:
                 return False
 
+        if kwargs.get("auto_date", None) == True and "date_time" in item and value is not None:
+            value = convertDatetime(value)
+
         result[item] = value
 
     return result
 
 
-def convertParams(params, format):
+def convertParams(params, format, **kwargs):
     result = {}
 
     for item in format.keys():
@@ -41,7 +51,10 @@ def convertParams(params, format):
             else:
                 return False
         else:
-            result[item] = params.get(path)
+            if kwargs.get("auto_date", None) == True and "date_time" in item:
+                result[item] = convertDatetime(params.get(path))
+            else:
+                result[item] = params.get(path)
 
     return result
 

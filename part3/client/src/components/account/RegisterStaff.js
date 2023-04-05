@@ -59,7 +59,7 @@ const RegisterStaff = (props) => {
                 navigate("/login?type=staff");
             }, 3000);
         } catch (e) {
-            if (e.response.data.msg) setError(e.response.data.msg);
+            if (e.response?.data.msg) setError(e.response.data.msg);
             else setError("Unknown Error");
         }
     };

@@ -1,7 +1,46 @@
+import { useLayoutEffect } from "react";
 import AirplaneIcon from "../UI/AirplaneIcon";
 import Arrow from "../UI/Arrow";
 import Checkbox from "../UI/Checkbox";
 import styles from "./FlightItem.module.scss";
+
+const preProcess = (flight) => {
+    if (flight.departure_date_time) {
+        const time = new Date(flight.departure_date_time);
+
+        flight.departure_date = time.toLocaleDateString("en-us", {
+            weekday: "short",
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+        });
+
+        flight.departure_time = time.toLocaleTimeString("en-US", {
+            hour12: false,
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+    }
+
+    if (flight.arrival_date_time) {
+        const time = new Date(flight.arrival_date_time);
+
+        flight.arrival_date = time.toLocaleDateString("en-us", {
+            weekday: "short",
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+        });
+
+        flight.arrival_time = time.toLocaleTimeString("en-US", {
+            hour12: false,
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+    }
+
+    return flight;
+};
 
 const FlightItem = ({
     flight,
@@ -17,6 +56,7 @@ const FlightItem = ({
         if (!selected) onSelect();
         else onDeselect();
     };
+    flight = preProcess(flight);
 
     const showBasePrice = !showStatus && !calculatedPrice;
 
@@ -81,7 +121,9 @@ const FlightItem = ({
                         </div>
                     </div>
                     <div className={styles.airplane_info}>
-                        <span>{flight.airplane.id}</span>
+                        <span>
+                            {flight.airline_name + "-" + flight.airplane.id}
+                        </span>
                         <AirplaneIcon />
                         <span>{flight.airplane.seat_number} Seats</span>
                     </div>

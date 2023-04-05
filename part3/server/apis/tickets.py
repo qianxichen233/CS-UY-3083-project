@@ -70,7 +70,7 @@ def get_tickets():
 
 @tickets_api.route("/price", methods=["GET"])
 def get_ticket_price():
-    return {"msg": "under development"}
+    return {"calculated_price": "80.00"}
 
 
 @tickets_api.route("/register", methods=["PUT"])
@@ -94,6 +94,7 @@ def create_new_ticket():
             "flight_number_back?": "back.flight_number",
             "departure_date_time_back?": "back.departure_date_time",
         },
+        auto_date=True,
     )
 
     if body == False:

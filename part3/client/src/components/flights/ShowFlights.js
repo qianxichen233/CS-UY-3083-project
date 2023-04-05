@@ -177,9 +177,8 @@ const ShowFlights = (props) => {
                     params["destination_airport"] = body.to.value;
             }
 
-            let result;
             try {
-                result = await axios.get(
+                const result = await axios.get(
                     `http://${process.env.REACT_APP_backend_baseurl}/api/flights/future`,
                     {
                         params: params,
@@ -190,8 +189,8 @@ const ShowFlights = (props) => {
                     type: "flight",
                     content: result.data,
                 });
-            } catch {
-                console.log(result.data.msg);
+            } catch (e) {
+                console.error(e.response?.data.msg);
             }
         } else if (type === "status") {
             let result;
@@ -210,8 +209,8 @@ const ShowFlights = (props) => {
                     type: "status",
                     content: result.data,
                 });
-            } catch {
-                console.log(result.data.msg);
+            } catch (e) {
+                console.error(e.response?.data.msg);
             }
         } else if (type === "myflight") {
             if (!user) return;
@@ -247,8 +246,8 @@ const ShowFlights = (props) => {
                     type: "myflight",
                     content: result.data,
                 });
-            } catch {
-                console.log(result.data.msg);
+            } catch (e) {
+                console.error(e.response?.data.msg);
             }
         }
     };

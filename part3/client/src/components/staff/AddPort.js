@@ -42,7 +42,7 @@ const AddPort = () => {
                 airport_type: "",
             });
         } catch (e) {
-            console.log(e.response.data.msg);
+            console.error(e.response?.data.msg);
         }
     };
 

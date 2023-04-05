@@ -102,10 +102,14 @@ def create_flights():
             "base_price": "base_price",
             "airplane_ID": "airplane_id",
         },
+        auto_date=True,
     )
 
     if body == False:
         return {"msg": "missing field"}, 422
+
+    body["arrival_date_time"] = utility.convertDatetime(body["arrival_date_time"])
+    body["departure_date_time"] = utility.convertDatetime(body["departure_date_time"])
 
     cursor = mydb.cursor()
 
@@ -134,8 +138,9 @@ def get_flights_status():
         {
             "airline_name": "airline_name",
             "flight_number": "flight_number",
-            "departure_date": "departure_date_time",
+            "departure_date_time": "departure_date_time",
         },
+        auto_date=True,
     )
 
     if params == False:
@@ -148,10 +153,12 @@ def get_flights_status():
                 arrival_date_time,arrival_airport_code,base_price,status,id, seat_number,
 		        manufacturing_company,manufacturing_date, age
                 FROM flight NATURAL JOIN airplane
-                WHERE airline_name=%(airline)s and flight_number=%(flightnum)s and departure_date_time=%(de_date)s
-                and airplane.ID = airplane_ID
+                WHERE airline_name=%(airline_name)s
+                    AND flight_number=%(flight_number)s
+                    AND departure_date_time=%(departure_date_time)s
+                    AND airplane.ID = airplane_ID
         """,
-        {"airline": params["airline_name"], "flightnum": params["flight_number"], "de_date": params["departure_date"]},
+        params,
     )
 
     result = cursor.fetchall()
@@ -191,6 +198,7 @@ def update_flights_status():
             "flight_number": "flight_number",
             "departure_date_time": "departure_date_time",
         },
+        auto_date=True,
     )
 
     if body == False:
@@ -249,10 +257,10 @@ def get_future_flights():
     if params == False:
         return {"msg": "missing field"}, 422
 
-    if not params["source_city"] and not params["source_airport"]:
+    if "source_city" not in params and "source_airport" not in params:
         return {"msg": "missing field"}, 422
 
-    if not params["destination_city"] and not params["destination_airport"]:
+    if "destination_city" not in params and "destination_airport" not in params:
         return {"msg": "missing field"}, 422
 
     selector_to = utility.createSqlQuery(

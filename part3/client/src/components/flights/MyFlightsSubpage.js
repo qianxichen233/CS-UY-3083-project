@@ -32,9 +32,8 @@ const MyFlightsSubpage = ({ flights }) => {
     const onUnregisterHandler = async (index) => {
         console.log("unregister", flights.future[index]);
 
-        let result;
         try {
-            result = await axios.post(
+            const result = await axios.post(
                 `http://${process.env.REACT_APP_backend_baseurl}/api/tickets/unregister`,
                 {
                     email: user.email,
@@ -47,8 +46,8 @@ const MyFlightsSubpage = ({ flights }) => {
             );
 
             window.location = "/?tab=myflight";
-        } catch {
-            console.log(result.data.msg);
+        } catch (e) {
+            console.error(e.response?.data.msg);
         }
     };
 

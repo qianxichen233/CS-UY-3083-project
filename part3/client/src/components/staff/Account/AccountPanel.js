@@ -92,7 +92,7 @@ const fetchRevenueRange = async ({ from, to, airline }) => {
 
         return result.data.revenue;
     } catch (e) {
-        console.error(e.response.data.msg);
+        console.error(e.response?.data.msg);
     }
 };
 
@@ -165,7 +165,7 @@ const AccountPanel = (props) => {
                 number: "12345",
             },
         });
-        return;
+
         const oneYearAgo = new Date(
             new Date().setFullYear(new Date().getFullYear() - 1)
         );
@@ -185,7 +185,7 @@ const AccountPanel = (props) => {
 
             setFrequentCustomer(result.data.customer);
         } catch (e) {
-            console.error(e.response.data.msg);
+            console.error(e.response?.data.msg);
         }
     };
 
@@ -205,7 +205,7 @@ const AccountPanel = (props) => {
 
             setData(result.data);
         } catch (e) {
-            console.log(e.response.data.msg);
+            console.error(e.response?.data.msg);
         }
     };
 
@@ -224,7 +224,7 @@ const AccountPanel = (props) => {
             );
             setTickets(result.data.tickets);
         } catch (e) {
-            console.log(e.response.data.msg);
+            console.error(e.response?.data.msg);
         }
     };
 

@@ -7,10 +7,32 @@ const renderInput = ({
     type,
     label,
     value,
+    options,
     onChange,
     placeholder,
     error,
 }) => {
+    if (type === "select") {
+        return (
+            <div key={key} className={styles.input}>
+                <span>{label}</span>
+                <select
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                >
+                    {options.map((option) => {
+                        return (
+                            <option value={option} key={option}>
+                                {option}
+                            </option>
+                        );
+                    })}
+                </select>
+                <span className={styles.inputError}>{error}</span>
+            </div>
+        );
+    }
+
     return (
         <div key={key} className={styles.input}>
             <span>{label}</span>
@@ -65,12 +87,14 @@ const Form = (props) => {
                         type: input.type,
                         label: input.label,
                         value: input.value,
+                        options: input.options,
                         onChange: onChangeHandler.bind(null, index),
                         placeholder: input.placeholder,
                         error: error?.index === index ? error.error : "",
                     });
                 })}
             </div>
+            {!!props.middle && props.middle}
             <Button {...props.submit} onClick={onSubmitHandler} />
         </div>
     );

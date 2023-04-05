@@ -33,18 +33,21 @@ const FlightSearch = (props) => {
             label: sourceType === "city" ? "Source City" : "Source Airport",
             value: filter.from,
             onChange: onFilterChange.bind(null, "from"),
+            required: "Source is required",
         },
         {
             type: "text",
             label: toType === "city" ? "Target City" : "Target Airport",
             value: filter.to,
             onChange: onFilterChange.bind(null, "to"),
+            required: "Destination is required",
         },
         {
             type: "date",
             label: "Departure Date",
             value: filter.departure,
             onChange: onFilterChange.bind(null, "departure"),
+            required: "Departure Date is required",
         },
     ];
 
@@ -54,6 +57,7 @@ const FlightSearch = (props) => {
             label: "Return Date",
             value: filter.return,
             onChange: onFilterChange.bind(null, "return"),
+            required: "Return Date is required",
         });
     }
 

@@ -49,7 +49,7 @@ const FlightComments = ({ flight: initalFlight }) => {
 
             setComments(result.data.comments);
         } catch (e) {
-            console.error(e.response.data.msg);
+            console.error(e.response?.data.msg);
         }
     };
 

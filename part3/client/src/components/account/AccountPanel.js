@@ -132,8 +132,8 @@ const AccountPanel = (props) => {
             );
 
             setData(result.data);
-        } catch {
-            console.log(result.data.msg);
+        } catch (e) {
+            console.error(e.response?.data.msg);
         }
     };
 
@@ -152,7 +152,7 @@ const AccountPanel = (props) => {
 
             setSpending(result.data.flights);
         } catch (e) {
-            console.log(e.response.data.msg);
+            console.error(e.response?.data.msg);
         }
     };
 

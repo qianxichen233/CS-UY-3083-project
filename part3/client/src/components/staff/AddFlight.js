@@ -46,7 +46,7 @@ const AddFlight = () => {
                 airplane_id: "",
             });
         } catch (e) {
-            console.log(e.response.data.msg);
+            console.error(e.response?.data.msg);
         }
     };
 
