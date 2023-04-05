@@ -69,7 +69,6 @@ const RegisterCustomer = (props) => {
                 }
             );
 
-            console.log(result);
             setSuccessMsg("Register Succeed!");
 
             setTimeout(() => {

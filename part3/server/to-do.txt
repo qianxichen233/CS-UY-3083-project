@@ -608,6 +608,8 @@ return object structure:
 	last_name
 	airline_name
 	date_of_birth
+	phone_numbers: []
+	emails: []
 }
 
 23. GET api/revenue

@@ -48,11 +48,13 @@
 
             > section {
                 display: flex;
-                align-items: center;
+                align-items: flex-start;
 
                 > div:first-child {
                     width: 200px;
                     font-weight: 600;
+                    height: 1em;
+                    padding: 10px;
                 }
 
                 > div:last-child {
@@ -64,9 +66,33 @@
                     border: 1px solid lightgrey;
                     width: 300px;
 
-                    //background-color: white;
-
                     padding: 10px;
+                }
+
+                .list {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+
+                    > div {
+                        display: flex;
+                        align-items: center;
+                        justify-content: flex-start;
+                        gap: 10px;
+
+                        border: 1px solid lightgrey;
+                        width: 300px;
+
+                        //background-color: white;
+
+                        padding: 10px;
+                    }
+                }
+
+                .empty {
+                    user-select: none;
+                    background-color: rgba(211, 211, 211, 0.5);
+                    height: 1em;
                 }
             }
         }

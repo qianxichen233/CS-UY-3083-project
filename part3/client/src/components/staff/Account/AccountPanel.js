@@ -190,7 +190,6 @@ const AccountPanel = (props) => {
     };
 
     const fetchUserData = async () => {
-        return setData(dummy);
         try {
             const result = await axios.get(
                 `http://${process.env.REACT_APP_backend_baseurl}/api/customer`,
@@ -275,12 +274,12 @@ const AccountPanel = (props) => {
                         value: data.airline_name,
                     },
                     {
-                        name: "Email",
-                        value: data.emails[0],
+                        name: "Emails",
+                        value: data.emails,
                     },
                     {
                         name: "Phone Numbers",
-                        value: data.phone_numbers[0],
+                        value: data.phone_numbers,
                     },
                 ]}
             />

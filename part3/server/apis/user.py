@@ -204,6 +204,17 @@ def register():
             """,
                 body,
             )
+
+            cursor.execute(
+                """
+                    INSERT INTO customer_phone_number
+                        VALUES (
+                            %(emails)s,
+                            %(phone_number)s
+                        )
+                """,
+                {"email": body["email"], "phone_number": body["phone_number"]},
+            )
             mydb.commit()
 
         except:
@@ -258,6 +269,29 @@ def register():
             """,
                 body,
             )
+
+            cursor.execute(
+                """
+                    INSERT INTO airline_staff_phone_number
+                        VALUES (
+                            %(username)s,
+                            %(phone_number)s
+                        )
+                """,
+                body,
+            )
+
+            cursor.execute(
+                """
+                    INSERT INTO airline_staff_email_address
+                        VALUES (
+                            %(username)s,
+                            %(email)s
+                        )
+                """,
+                body,
+            )
+
             mydb.commit()
 
         except:

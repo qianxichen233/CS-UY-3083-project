@@ -117,10 +117,8 @@ const AccountPanel = (props) => {
     const [spending, setSpending] = useState();
 
     const fetchUserData = async () => {
-        return setData(dummy);
-        let result;
         try {
-            result = await axios.get(
+            const result = await axios.get(
                 `http://${process.env.REACT_APP_backend_baseurl}/api/customer`,
                 {
                     params: {
@@ -202,7 +200,7 @@ const AccountPanel = (props) => {
                     },
                     {
                         name: "Phone Numbers",
-                        value: data.phone_numbers[0],
+                        value: data.phone_numbers,
                     },
                 ]}
             />

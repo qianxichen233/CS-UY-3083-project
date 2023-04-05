@@ -51,8 +51,6 @@ const RegisterStaff = (props) => {
                 }
             );
 
-            console.log(result);
-
             setSuccessMsg("Register Succeed!");
 
             setTimeout(() => {

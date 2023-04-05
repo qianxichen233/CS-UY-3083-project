@@ -100,7 +100,7 @@ def create_new_ticket():
     if body == False:
         return {"msg": "missing field"}, 422
 
-    if body["type"] == "round-trip" and body["airline_name_back"] is None:
+    if body["type"] == "round-trip" and "airline_name_back" not in body:
         return {"msg": "missing field"}, 422
 
     cursor = mydb.cursor()
@@ -160,7 +160,7 @@ def create_new_ticket():
 
     mydb.commit()
 
-    return {"msg": "success"}
+    return {"msg": "success"}, 201
 
 
 @tickets_api.route("/unregister", methods=["POST"])

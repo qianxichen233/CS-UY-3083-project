@@ -30,8 +30,6 @@ const MyFlightsSubpage = ({ flights }) => {
     };
 
     const onUnregisterHandler = async (index) => {
-        console.log("unregister", flights.future[index]);
-
         try {
             const result = await axios.post(
                 `http://${process.env.REACT_APP_backend_baseurl}/api/tickets/unregister`,
