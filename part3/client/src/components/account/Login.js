@@ -39,9 +39,6 @@ const Login = (props) => {
                 },
                 {
                     withCredentials: true,
-                    headers: {
-                        "X-CSRF-TOKEN": getCookie("csrf_access_token"),
-                    },
                 }
             );
 
@@ -51,6 +48,7 @@ const Login = (props) => {
                 first_name: result.data.first_name,
                 last_name: result.data.last_name,
                 airline: result.data.airline,
+                expiration_date: result.data.expiration_date,
             });
 
             navigate("/");

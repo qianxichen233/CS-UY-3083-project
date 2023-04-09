@@ -145,27 +145,6 @@ const AccountPanel = (props) => {
     };
 
     const fetchFrequentCustomer = async () => {
-        setFrequentCustomer({
-            address: {
-                apartment_number: "1",
-                building_number: 1,
-                city: "New York",
-                state: "New York",
-                street_name: "Jay St.",
-                zip_code: "11201",
-            },
-            date_of_birth: "Sat, 01 Jan 2000 00:00:00 GMT",
-            email: "qc815@nyu.edu",
-            first_name: "Qianxi",
-            last_name: "Chen",
-            phone_numbers: ["123-456-789"],
-            passport: {
-                country: "China",
-                expiration: "Wed, 31 Dec 2025 00:00:00 GMT",
-                number: "12345",
-            },
-        });
-
         const oneYearAgo = new Date(
             new Date().setFullYear(new Date().getFullYear() - 1)
         );

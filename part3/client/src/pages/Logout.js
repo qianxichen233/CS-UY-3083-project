@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useUser from "../hooks/useUser";
 import axios from "axios";
+import { getCookie } from "../utility";
 
 const Logout = () => {
     const { user, removeUser } = useUser();
@@ -15,6 +16,9 @@ const Logout = () => {
                 {},
                 {
                     withCredentials: true,
+                    headers: {
+                        "X-CSRF-TOKEN": getCookie("csrf_access_token"),
+                    },
                 }
             );
         } catch (e) {

@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, make_response
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
+from dateutil import relativedelta
 from flask_jwt_extended import (
     create_access_token,
     get_jwt,
@@ -15,7 +16,7 @@ import json
 import bcrypt
 
 import utility
-from database import mydb
+from database import getdb
 
 user_api = Blueprint("user_api", __name__)
 
@@ -30,6 +31,7 @@ def login():
     if body == False:
         return {"msg": "missing field"}, 422
 
+    mydb = getdb()
     cursor = mydb.cursor()
 
     if body["user_type"] == "customer":
@@ -44,6 +46,7 @@ def login():
 
         result = cursor.fetchall()
         cursor.close()
+        mydb.close()
         users = []
 
         for p in result:
@@ -58,7 +61,18 @@ def login():
         access_token = create_access_token(identity={"type": "customer", "username": body["username"]})
         refresh_token = create_refresh_token(identity={"type": "customer", "username": body["username"]})
 
-        response = make_response(jsonify({"type": "customer", "first_name": users[0][1], "last_name": users[0][2]}))
+        response = make_response(
+            jsonify(
+                {
+                    "type": "customer",
+                    "first_name": users[0][1],
+                    "last_name": users[0][2],
+                    "expiration_date": (datetime.now() + relativedelta.relativedelta(hours=24)).strftime(
+                        "%Y-%m-%d %H:%M:%S"
+                    ),
+                }
+            )
+        )
         set_access_cookies(response, access_token)
         set_refresh_cookies(response, refresh_token)
         response.headers["access-control-expose-headers"] = "Set-Cookie"
@@ -80,6 +94,7 @@ def login():
 
         result = cursor.fetchall()
         cursor.close()
+        mydb.close()
         user = []
 
         for p in result:
@@ -99,6 +114,9 @@ def login():
                 {
                     "type": "staff",
                     "airline": user[0][1],
+                    "expiration_date": (datetime.now() + relativedelta.relativedelta(hours=24)).strftime(
+                        "%Y-%m-%d %H:%M:%S"
+                    ),
                 }
             )
         )
@@ -152,6 +170,7 @@ def register():
         password = bcrypt.hashpw(body["password"].encode("utf-8"), bcrypt.gensalt())
         body["password"] = password
 
+        mydb = getdb()
         cursor = mydb.cursor()
 
         try:
@@ -197,7 +216,9 @@ def register():
                 """,
                 {"email": body["email"], "phone_number": body["phone_number"]},
             )
+            cursor.close()
             mydb.commit()
+            mydb.close()
 
         except:
             return {"msg": "unknown error"}, 500
@@ -274,7 +295,9 @@ def register():
                 body,
             )
 
+            cursor.close()
             mydb.commit()
+            mydb.close()
 
         except:
             return {"msg": "unknown error"}, 500
