@@ -124,15 +124,15 @@ def get_ticket_price():
     cursor.execute(
         """
             select airline_name, flight_number, departure_date_time
-            from ticket natural join airline
+            from ticket 
             where airline_name = %(airline_name)s and flight_number = %(flight_number)s 
             and departure_date_time = %(departure_date_time)s
         """,
         params,
     )
-    result = cursor.fetchall()
+    result = cursor.fetchall()[0]
+    response = {"calculated_price": get_current_price(cursor, result[0], result[1], result[2])}
     cursor.close()
-    response = get_flight_registered_count(cursor, result[0], result[1], result[2])
     return response
 
 
