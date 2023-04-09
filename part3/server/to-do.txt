@@ -582,7 +582,7 @@ return object structure:
 {
 	tickets: [
 		{
-			month,
+			year_month,
 			number
 		}
 	]

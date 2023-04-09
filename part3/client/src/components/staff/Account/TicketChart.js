@@ -15,7 +15,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip);
 
 const convertTickets = (tickets) => {
     const result = {};
-    for (const ticket of tickets) result[ticket.month] = ticket.number;
+    for (const ticket of tickets) result[ticket.year_month] = ticket.number;
     return result;
 };
 
@@ -58,6 +58,11 @@ const TicketChart = (props) => {
             y: {
                 ticks: {
                     beginAtZero: true,
+                    callback: function (value, index, values) {
+                        if (Math.floor(value) === value) {
+                            return value;
+                        }
+                    },
                 },
             },
         },

@@ -4,7 +4,14 @@ from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 
 from datetime import datetime, timedelta, timezone
-from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, JWTManager
+from flask_jwt_extended import (
+    create_access_token,
+    get_jwt,
+    get_jwt_identity,
+    JWTManager,
+    jwt_required,
+    set_access_cookies,
+)
 
 import json
 
@@ -53,17 +60,19 @@ app.register_blueprint(user_api, url_prefix="/api")
 
 
 @app.after_request
+@jwt_required(refresh=True, optional=True)
 def refresh_expiring_jwts(response):
     try:
         exp_timestamp = get_jwt()["exp"]
         now = datetime.now(timezone.utc)
-        target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
-        if target_timestamp > exp_timestamp:
+        # target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
+        if exp_timestamp > datetime.timestamp(now):
             access_token = create_access_token(identity=get_jwt_identity())
-            data = response.get_json()
-            if type(data) is dict:
-                data["access_token"] = access_token
-                response.data = json.dumps(data)
+            set_access_cookies(response, access_token)
+            # data = response.get_json()
+            # if type(data) is dict:
+            #     data["access_token"] = access_token
+            #     response.data = json.dumps(data)
         return response
     except (RuntimeError, KeyError):
         # Case where there is not a valid JWT. Just return the original respone

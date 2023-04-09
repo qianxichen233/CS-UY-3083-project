@@ -210,7 +210,7 @@ const AccountPanel = (props) => {
 
     const fetchTicketsData = async (range) => {
         try {
-            const result = axios.get(
+            const result = await axios.get(
                 `http://${process.env.REACT_APP_backend_baseurl}/api/tickets`,
                 {
                     params: {
@@ -235,8 +235,7 @@ const AccountPanel = (props) => {
 
     useEffect(() => {
         if (!ticketRange.from || !ticketRange.to) return;
-        //fetchTicketsData(ticketRange);
-        setTickets(dummy_tickets);
+        fetchTicketsData(ticketRange);
     }, [ticketRange]);
 
     const onTicketDateChangeHandler = ({ from, to }) => {

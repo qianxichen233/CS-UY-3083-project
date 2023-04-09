@@ -1,8 +1,14 @@
 from flask import Blueprint, request, jsonify
 
+from flask_jwt_extended import (
+    get_jwt_identity,
+    jwt_required,
+)
+
 import utility, json
 from database import mydb
 from datetime import datetime
+from constant import *
 
 tickets_api = Blueprint("tickets_api", __name__)
 
@@ -58,26 +64,35 @@ def get_current_price(cursor, airline, flight_number, departure_date_time):
 
     if float(ticket_counts["count"][0]) >= 0.8 * float(ticket_counts["max"][0]):
         price = round(price * 1.25, 2)
-    print(price)
 
     return price
 
 
 @tickets_api.route("/", methods=["GET"])
+@jwt_required(locations="cookies")
 def get_tickets():
     params = utility.convertParams(
         request.args,
         {
             "airline": "airline",
-            "start_date": "start_date",
-            "end_date": "end_date",
+            "start_month": "start_date",
+            "end_month": "end_date",
         },
+        auto_date=True,
     )
 
     if params == False:
         return {"msg": "missing field"}, 422
 
+    identity = get_jwt_identity()
+    if identity["type"] != "staff":
+        return {"msg": "staff only"}, 401
+
     cursor = mydb.cursor()
+
+    if utility.getStaff(cursor, get_jwt_identity()["username"], "airline_name")[0] != params["airline"]:
+        return {"msg": "airline unmatch"}, 401
+
     cursor.execute(
         """
             select EXTRACT(YEAR_MONTH from ticket.purchased_date_time) AS yearmonth,
@@ -86,22 +101,32 @@ def get_tickets():
             where airline_name = %(airline)s
             group by yearmonth
             having
-                yearmonth >= %(start_date)s and yearmonth <= %(end_date)s
+                yearmonth >= %(start_month)s and yearmonth <= %(end_month)s
         """,
         params,
     )
 
     result = cursor.fetchall()
     cursor.close()
-    response = {"months_tickets": []}
 
-    for item in result:
-        response["months_tickets"].append(
+    response = {"tickets": []}
+
+    current_date = params["start_month"]
+    end_date = utility.nextMonth(params["end_month"])
+    while current_date != end_date:
+        response["tickets"].append(
             {
-                "year_month": item[0],
-                "number": item[1],
+                "year_month": current_date,
+                "number": 0,
             }
         )
+        current_date = utility.nextMonth(current_date)
+
+    for item in result:
+        for month in response["tickets"]:
+            if month["year_month"] == str(item[0]):
+                month["number"] = item[1]
+                break
 
     return response
 
@@ -115,24 +140,34 @@ def get_ticket_price():
             "flight_number": "flight_number",
             "departure_date_time": "departure_date_time",
         },
+        auto_date=True,
     )
 
     if params == False:
         return {"msg": "missing field"}, 422
-    
+
     cursor = mydb.cursor()
     cursor.execute(
         """
             select airline_name, flight_number, departure_date_time
-            from ticket 
+            from flight 
             where airline_name = %(airline_name)s and flight_number = %(flight_number)s 
             and departure_date_time = %(departure_date_time)s
         """,
         params,
     )
-    result = cursor.fetchall()[0]
-    response = {"calculated_price": get_current_price(cursor, result[0], result[1], result[2])}
+    result = cursor.fetchall()
+
+    if len(result) == 0:
+        return {"msg": "flight not found"}, 404
+
+    response = {
+        "calculated_price": get_current_price(
+            cursor, params["airline_name"], params["flight_number"], params["departure_date_time"]
+        )
+    }
     cursor.close()
+
     return response
 
 

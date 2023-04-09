@@ -58,7 +58,7 @@ def get_flights():
             SELECT flight.airline_name, flight_number, departure_date_time, departure_airport_code,
                     arrival_date_time, arrival_airport_code, base_price, status,
                     id, seat_number, manufacturing_company, manufacturing_date, age
-                FROM flight JOIN airplane JOIN airport AS arrival JOIN airport AS departure
+                FROM flight NATURAL JOIN airplane JOIN airport AS arrival JOIN airport AS departure
                 WHERE airplane.ID = airplane_ID
                     AND arrival.code = arrival_airport_code
                     AND departure.code = departure_airport_code
@@ -307,7 +307,7 @@ def get_future_flights():
         SELECT flight.airline_name, flight_number, departure_date_time, departure_airport_code,
                     arrival_date_time, arrival_airport_code, base_price, status,
                     id, seat_number, manufacturing_company, manufacturing_date, age
-                FROM flight JOIN airplane JOIN airport AS arrival JOIN airport AS departure
+                FROM flight NATURAL JOIN airplane JOIN airport AS arrival JOIN airport AS departure
                 WHERE airplane.ID = airplane_ID
                     AND arrival.code = arrival_airport_code
                     AND departure.code = departure_airport_code
@@ -360,7 +360,7 @@ def get_future_flights():
             SELECT flight.airline_name, flight_number, departure_date_time, departure_airport_code,
                         arrival_date_time, arrival_airport_code, base_price, status,
                         id, seat_number, manufacturing_company, manufacturing_date, age
-                    FROM flight JOIN airplane JOIN airport AS arrival JOIN airport AS departure
+                    FROM flight NATURAL JOIN airplane JOIN airport AS arrival JOIN airport AS departure
                     WHERE airplane.ID = airplane_ID
                         AND arrival.code = arrival_airport_code
                         AND departure.code = departure_airport_code

@@ -1,4 +1,4 @@
-from dateutil import parser
+from dateutil import parser, relativedelta
 
 
 def convertDatetime(time):
@@ -7,6 +7,16 @@ def convertDatetime(time):
 
 def convertDate(date):
     return parser.parse(date).strftime("%Y-%m-%d")
+
+
+def convertMonth(date):
+    return parser.parse(date).strftime("%Y%m")
+
+
+def nextMonth(date):
+    if "-" not in date:
+        date = date[:4] + "-" + date[4:]
+    return (parser.parse(date) + relativedelta.relativedelta(months=1)).strftime("%Y%m")
 
 
 def convertBody(body, format, **kwargs):
@@ -35,6 +45,8 @@ def convertBody(body, format, **kwargs):
                 value = convertDatetime(value)
             elif "date" in item:
                 value = convertDate(value)
+            elif "month" in item:
+                value = convertMonth(value)
 
         result[item] = value
 
@@ -63,6 +75,8 @@ def convertParams(params, format, **kwargs):
                     result[item] = convertDatetime(params.get(path))
                 elif "date" in item:
                     result[item] = convertDate(params.get(path))
+                elif "month" in item:
+                    result[item] = convertMonth(params.get(path))
                 else:
                     result[item] = params.get(path)
             else:

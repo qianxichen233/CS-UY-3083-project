@@ -69,7 +69,7 @@ const Form = (props) => {
     const onSubmitHandler = () => {
         const msg = checkInput(props.inputs);
         if (!msg) props.submit.onClick();
-        setError(msg);
+        else setError(msg);
     };
 
     const onChangeHandler = (index, value) => {
