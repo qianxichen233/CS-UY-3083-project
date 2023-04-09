@@ -675,6 +675,7 @@ return object structure:
 			country
 		}
 		date_of_birth
+		count
 	}
 }
 

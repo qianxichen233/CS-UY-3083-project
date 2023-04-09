@@ -235,4 +235,37 @@ def get_customers():
 
 @customers_api.route("/frequent", methods=["GET"])
 def get_frequent_customers():
-    return {"msg": "under development"}
+    params = utility.convertParams(
+        request.args,
+        {"airline": "airline", "start_month": "start_date", "end_month": "end_date"},
+        auto_date=True,
+    )
+
+    if params == False:
+        return {"msg": "missing field"}, 422
+
+    cursor = mydb.cursor()
+    cursor.execute(
+        """
+            SELECT email,
+                    count(*) as number
+                FROM ticket
+                WHERE EXTRACT(YEAR_MONTH from ticket.purchased_date_time) >= %(start_month)s
+                    AND EXTRACT(YEAR_MONTH from ticket.purchased_date_time) <= %(end_month)s
+                    AND airline_name = %(airline)s
+                GROUP BY email
+                ORDER BY number DESC
+                LIMIT 1
+        """,
+        params,
+    )
+
+    result = cursor.fetchall()[0]
+
+    response = {"customer": utility.getCustomer(cursor, result[0])}
+
+    cursor.close()
+
+    response["customer"]["count"] = result[1]
+
+    return response

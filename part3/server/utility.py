@@ -155,3 +155,68 @@ def getFlight(cursor, airline, flight_number, departure_date_time):
             "age": result[12],
         },
     }
+
+
+def getCustomer(cursor, email):
+    cursor.execute(
+        """
+            SELECT email, first_name, last_name, building_number,
+                    street_name, apartment_number, city, state,
+                    zip_code, passport_number, passport_expiration,
+                    passport_country, date_of_birth
+                FROM customer
+                WHERE email=%(email)s
+        """,
+        {"email": email},
+    )
+
+    result = cursor.fetchall()
+
+    (
+        email,
+        first_name,
+        last_name,
+        building_number,
+        street_name,
+        apartment_number,
+        city,
+        state,
+        zip_code,
+        passport_number,
+        passport_expiration,
+        passport_country,
+        date_of_birth,
+    ) = result[0]
+
+    cursor.execute(
+        """
+            SELECT phone_number
+                FROM customer_phone_number
+                WHERE email = %(email)s
+        """,
+        {"email": email},
+    )
+
+    result = cursor.fetchall()
+    cursor.close()
+
+    phone_numbers = []
+    for item in result:
+        phone_numbers.append(item[0])
+
+    return {
+        "email": email,
+        "first_name": first_name,
+        "last_name": last_name,
+        "phone_numbers": phone_numbers,
+        "address": {
+            "building_number": building_number,
+            "street_name": street_name,
+            "apartment_number": apartment_number,
+            "city": city,
+            "state": state,
+            "zip_code": zip_code,
+        },
+        "passport": {"number": passport_number, "expiration": passport_expiration, "country": passport_country},
+        "date_of_birth": date_of_birth,
+    }
