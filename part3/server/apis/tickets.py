@@ -65,7 +65,46 @@ def get_current_price(cursor, airline, flight_number, departure_date_time):
 
 @tickets_api.route("/", methods=["GET"])
 def get_tickets():
-    return {"msg": "under development"}
+    params = utility.convertParams(
+        request.args,
+        {
+            "airline": "airline",
+            "start_date": "start_date",
+            "end_date": "end_date",
+        },
+        auto_date=True,
+    )
+
+    if params == False:
+        return {"msg": "missing field"}, 422
+    
+    cursor = mydb.cursor()
+    cursor.execute(
+        """
+            select EXTRACT(YEAR_MONTH from ticket.purchased_date_time) AS yearmonth,count(*) as count
+            from ticket
+            group by yearmonth
+            having yearmonth >= 'start_date' and yearmonth <= 'end_date'
+            where airline_name = airline
+        """,
+        params,
+    )
+
+    result = cursor.fetchall()
+    cursor.close()
+    response = {"months_tickets": []}
+
+    for item in result:
+        response["months_tickets"].append(
+            {
+                "year and month": item[0],
+                "number of ticket": item[1],
+            }
+        )
+
+    return response
+    
+   
 
 
 @tickets_api.route("/price", methods=["GET"])
