@@ -108,7 +108,32 @@ def get_tickets():
 
 @tickets_api.route("/price", methods=["GET"])
 def get_ticket_price():
-    return {"calculated_price": "80.00"}
+    params = utility.convertParams(
+        request.args,
+        {
+            "airline_name": "airline_name",
+            "flight_number": "flight_number",
+            "departure_date_time": "departure_date_time",
+        },
+    )
+
+    if params == False:
+        return {"msg": "missing field"}, 422
+    
+    cursor = mydb.cursor()
+    cursor.execute(
+        """
+            select airline_name, flight_number, departure_date_time
+            from ticket natural join airline
+            where airline_name = %(airline_name)s and flight_number = %(flight_number)s 
+            and departure_date_time = %(departure_date_time)s
+        """,
+        params,
+    )
+    result = cursor.fetchall()
+    cursor.close()
+    response = get_flight_registered_count(cursor, result[0], result[1], result[2])
+    return response
 
 
 @tickets_api.route("/register", methods=["PUT"])
