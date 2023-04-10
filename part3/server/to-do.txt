@@ -582,8 +582,7 @@ return object structure:
 {
 	tickets: [
 		{
-			year
-			month
+			year_month,
 			number
 		}
 	]
@@ -676,6 +675,7 @@ return object structure:
 			country
 		}
 		date_of_birth
+		count
 	}
 }
 

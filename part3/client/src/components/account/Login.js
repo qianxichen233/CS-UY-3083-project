@@ -5,6 +5,7 @@ import useUser from "../../hooks/useUser";
 
 import styles from "./Login.module.scss";
 import { Link, redirect, useNavigate } from "react-router-dom";
+import { getCookie } from "../../utility";
 
 const Login = (props) => {
     const navigate = useNavigate();
@@ -47,27 +48,12 @@ const Login = (props) => {
                 first_name: result.data.first_name,
                 last_name: result.data.last_name,
                 airline: result.data.airline,
+                expiration_date: result.data.expiration_date,
             });
 
             navigate("/");
         } catch (e) {
             if (e.response?.data.msg) console.log(e.response.data.msg);
-            else setError("Unknown Error");
-        }
-    };
-
-    const test = async () => {
-        let result;
-        try {
-            result = await axios.get(
-                `http://${process.env.REACT_APP_backend_baseurl}/api/flights`,
-                {
-                    withCredentials: true,
-                }
-            );
-            console.log(result);
-        } catch (e) {
-            if (e.response?.data.msg) setError(e.response.data.msg);
             else setError("Unknown Error");
         }
     };

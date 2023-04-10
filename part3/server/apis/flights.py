@@ -6,7 +6,7 @@ import json
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, unset_jwt_cookies, jwt_required
 from flask_cors import cross_origin
 
-from database import mydb
+from database import getdb
 from constant import valid_status
 
 flights_api = Blueprint("flights_api", __name__)
@@ -32,6 +32,7 @@ def get_flights():
     if params == False:
         return {"msg": "missing field"}, 422
 
+    mydb = getdb()
     cursor = mydb.cursor()
 
     if get_jwt_identity()["type"] != "staff":
@@ -58,8 +59,9 @@ def get_flights():
             SELECT flight.airline_name, flight_number, departure_date_time, departure_airport_code,
                     arrival_date_time, arrival_airport_code, base_price, status,
                     id, seat_number, manufacturing_company, manufacturing_date, age
-                FROM flight JOIN airplane JOIN airport AS arrival JOIN airport AS departure
-                WHERE airplane.ID = airplane_IDAND arrival.code = arrival_airport_code
+                FROM flight NATURAL JOIN airplane JOIN airport AS arrival JOIN airport AS departure
+                WHERE airplane.ID = airplane_ID
+                    AND arrival.code = arrival_airport_code
                     AND departure.code = departure_airport_code
                     
                     {selector}
@@ -71,6 +73,7 @@ def get_flights():
 
     result = cursor.fetchall()
     cursor.close()
+    mydb.close()
 
     response = {"flights": []}
 
@@ -119,6 +122,7 @@ def create_flights():
     if body == False:
         return {"msg": "missing field"}, 422
 
+    mydb = getdb()
     cursor = mydb.cursor()
 
     if get_jwt_identity()["type"] != "staff":
@@ -139,6 +143,7 @@ def create_flights():
 
     mydb.commit()
     cursor.close()
+    mydb.close()
 
     # result = cursor.fetchall()
     # print(result)
@@ -161,6 +166,7 @@ def get_flights_status():
     if params == False:
         return {"msg": "missing field"}, 422
 
+    mydb = getdb()
     cursor = mydb.cursor()
     cursor.execute(
         """
@@ -178,6 +184,8 @@ def get_flights_status():
 
     result = cursor.fetchall()
     cursor.close()
+    mydb.close()
+
     if len(result) == 0:
         return {"msg": "flight not exist"}, 404
 
@@ -221,6 +229,7 @@ def update_flights_status():
     if body == False:
         return {"msg": "missing field"}, 422
 
+    mydb = getdb()
     cursor = mydb.cursor()
 
     if get_jwt_identity()["type"] != "staff":
@@ -247,8 +256,6 @@ def update_flights_status():
     if body["status"] not in valid_status:
         return {"msg": "status not exist"}, 409
 
-    print(body)
-
     cursor.execute(
         """
             UPDATE flight
@@ -262,6 +269,7 @@ def update_flights_status():
 
     mydb.commit()
     cursor.close()
+    mydb.close()
 
     return {"msg": "success"}
 
@@ -300,6 +308,7 @@ def get_future_flights():
         params,
     )
 
+    mydb = getdb()
     cursor = mydb.cursor()
 
     cursor.execute(
@@ -307,7 +316,7 @@ def get_future_flights():
         SELECT flight.airline_name, flight_number, departure_date_time, departure_airport_code,
                     arrival_date_time, arrival_airport_code, base_price, status,
                     id, seat_number, manufacturing_company, manufacturing_date, age
-                FROM flight JOIN airplane JOIN airport AS arrival JOIN airport AS departure
+                FROM flight NATURAL JOIN airplane JOIN airport AS arrival JOIN airport AS departure
                 WHERE airplane.ID = airplane_ID
                     AND arrival.code = arrival_airport_code
                     AND departure.code = departure_airport_code
@@ -360,7 +369,7 @@ def get_future_flights():
             SELECT flight.airline_name, flight_number, departure_date_time, departure_airport_code,
                         arrival_date_time, arrival_airport_code, base_price, status,
                         id, seat_number, manufacturing_company, manufacturing_date, age
-                    FROM flight JOIN airplane JOIN airport AS arrival JOIN airport AS departure
+                    FROM flight NATURAL JOIN airplane JOIN airport AS arrival JOIN airport AS departure
                     WHERE airplane.ID = airplane_ID
                         AND arrival.code = arrival_airport_code
                         AND departure.code = departure_airport_code
@@ -396,6 +405,9 @@ def get_future_flights():
                 }
             )
 
+    cursor.close()
+    mydb.close()
+
     return response
 
 
@@ -417,7 +429,7 @@ def get_scheduled_flights():
 
     if params == False:
         return {"msg": "missing field"}, 422
-    
+
     selector_new = utility.createSqlQuery(
         [
             {"name": "start_date", "selector": "DATE(departure_date_time) > %s"},
@@ -430,7 +442,7 @@ def get_scheduled_flights():
         params,
     )
 
-    #if get_jwt_identity()["type"] != "staff":
+    # if get_jwt_identity()["type"] != "staff":
     cursor = mydb.cursor()
     cursor.execute(
         """
@@ -443,9 +455,9 @@ def get_scheduled_flights():
             email = %(email)s
             {select_new}
         """.format(
-        selector_new = selector_new
-    ),
-    params,
+            selector_new=selector_new
+        ),
+        params,
     )
 
     result = cursor.fetchall()
@@ -480,5 +492,3 @@ def get_scheduled_flights():
     }
 
     return response
-
-
