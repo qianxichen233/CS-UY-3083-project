@@ -63,6 +63,7 @@ def get_flights():
                 WHERE airplane.ID = airplane_ID
                     AND arrival.code = arrival_airport_code
                     AND departure.code = departure_airport_code
+                    
                     {selector}
         """.format(
             selector=selector
@@ -412,4 +413,82 @@ def get_future_flights():
 
 @flights_api.route("/schedule", methods=["GET"])
 def get_scheduled_flights():
-    return {"msg": "under development"}
+    params = utility.convertParams(
+        request.args,
+        {
+            "email": "email",
+            "start_date?": "start_date",
+            "end_date?": "end_date",
+            "destination_city?": "destination_city",
+            "destination_airport?": "destination_airport",
+            "source_city?": "source_city",
+            "source_airport?": "source_airport",
+        },
+        auto_date=True,
+    )
+
+    if params == False:
+        return {"msg": "missing field"}, 422
+
+    selector_new = utility.createSqlQuery(
+        [
+            {"name": "start_date", "selector": "DATE(departure_date_time) > %s"},
+            {"name": "end_date", "selector": "DATE(departure_date_time) < %s"},
+            {"name": "source_city", "selector": "departure.city = %s"},
+            {"name": "destination_city", "selector": "arrival.city = %s"},
+            {"name": "source_airport", "selector": "departure_airport_code = %s"},
+            {"name": "destination_airport", "selector": "arrival_airport_code = %s"},
+        ],
+        params,
+    )
+
+    # if get_jwt_identity()["type"] != "staff":
+    cursor = mydb.cursor()
+    cursor.execute(
+        """
+            SELECT ticket.ID, airline_name, flight_number, departure_date_time, departure_airport_code,
+                arrival_date_time, arrival_airport_code, base_price, calculated_price,status,
+                airplane.ID, seat_number, manufacturing_company, manufacturing_date, age, rating, comment
+            FROM flight Natural JOIN ticket Natural Join rate Natural join airplane
+            WHERE 
+            airplane.ID = airplane_id
+            email = %(email)s
+            {select_new}
+        """.format(
+            selector_new=selector_new
+        ),
+        params,
+    )
+
+    result = cursor.fetchall()
+    cursor.close()
+    if len(result) == 0:
+        return {"msg": "flight not exist"}, 404
+
+    items = result[0]
+
+    response = {
+        "ticket_id": items[0],
+        "airline_name": items[1],
+        "flight_number": items[2],
+        "departure_date_time": items[3],
+        "departure_airport_code": items[4],
+        "arrival_date_time": items[5],
+        "arrival_airport_code": items[6],
+        "base_price": items[7],
+        "calculated_price": items[8],
+        "status": items[9],
+        "airplane": {
+            "id": items[10],
+            "seat_number": items[11],
+            "manufacturing_company": items[12],
+            "manufacturing_date": items[13],
+            "age": items[14],
+        },
+        "comment": {
+            "rating": items[15],
+            "comment": items[16],
+        },
+    }
+
+    return response
