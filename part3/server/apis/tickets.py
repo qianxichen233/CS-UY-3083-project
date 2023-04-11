@@ -86,23 +86,24 @@ def get_tickets():
 
     identity = get_jwt_identity()
     if identity["type"] != "staff":
-        return {"msg": "staff only"}, 401
+        return {"msg": "staff only"}, 403
 
     with getdb() as mydb:
         cursor = mydb.cursor()
 
-        if utility.getStaff(cursor, get_jwt_identity()["username"], "airline_name")[0] != params["airline"]:
-            return {"msg": "airline unmatch"}, 401
+        if utility.getStaff(cursor, identity["username"], "airline_name")[0] != params["airline"]:
+            return {"msg": "airline unmatch"}, 403
 
         cursor.execute(
             """
-                select EXTRACT(YEAR_MONTH from ticket.purchased_date_time) AS yearmonth,
-                    count(*) as count
-                from ticket
-                where airline_name = %(airline)s
-                group by yearmonth
-                having
-                    yearmonth >= %(start_month)s and yearmonth <= %(end_month)s
+                SELECT EXTRACT(YEAR_MONTH FROM ticket.purchased_date_time) AS yearmonth,
+                    count(*) AS count
+                FROM ticket
+                WHERE airline_name = %(airline)s
+                GROUP BY yearmonth
+                HAVING
+                    yearmonth >= %(start_month)s
+                    AND yearmonth <= %(end_month)s
             """,
             params,
         )
@@ -151,10 +152,11 @@ def get_ticket_price():
         cursor = mydb.cursor()
         cursor.execute(
             """
-                select airline_name, flight_number, departure_date_time
-                from flight 
-                where airline_name = %(airline_name)s and flight_number = %(flight_number)s 
-                and departure_date_time = %(departure_date_time)s
+                SELECT airline_name, flight_number, departure_date_time
+                FROM flight 
+                WHERE airline_name = %(airline_name)s
+                    AND flight_number = %(flight_number)s 
+                    AND departure_date_time = %(departure_date_time)s
             """,
             params,
         )
@@ -174,6 +176,7 @@ def get_ticket_price():
 
 
 @tickets_api.route("/register", methods=["PUT"])
+@jwt_required(locations="cookies")
 def create_new_ticket():
     body = utility.convertBody(
         json.loads(request.data.decode("UTF-8")),
@@ -203,6 +206,13 @@ def create_new_ticket():
     if body["type"] == "round-trip" and "airline_name_back" not in body:
         return {"msg": "missing field"}, 422
 
+    identity = get_jwt_identity()
+    if identity["type"] != "customer":
+        return {"msg": "customer only"}, 403
+
+    if identity["username"] != body["email"]:
+        return {"msg": "email not match"}, 403
+
     with getdb() as mydb:
         cursor = mydb.cursor()
 
@@ -226,38 +236,46 @@ def create_new_ticket():
         )
         body["purchased_date_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        cursor.execute(
-            """
-                INSERT INTO ticket(airline_name, flight_number, departure_date_time,
-                                    first_name, last_name, date_of_birth, calculated_price,
-                                    email, purchased_date_time, card_type, card_number,
-                                    card_name, expiration_date)
-                    VALUES (%(airline_name_to)s, %(flight_number_to)s, %(departure_date_time_to)s,
-                            %(first_name)s, %(last_name)s, %(date_of_birth)s, %(calculated_price)s,
-                            %(email)s, %(purchased_date_time)s, %(card_type)s, %(card_number)s,
-                            %(card_name)s, %(expiration_date)s)
-            """,
-            body,
-        )
-
-        if body["type"] == "round-trip":
-            body["calculated_price"] = get_current_price(
-                cursor, body["airline_name_back"], body["flight_number_back"], body["departure_date_time_back"]
-            )
-
+        try:
             cursor.execute(
                 """
                     INSERT INTO ticket(airline_name, flight_number, departure_date_time,
                                         first_name, last_name, date_of_birth, calculated_price,
                                         email, purchased_date_time, card_type, card_number,
                                         card_name, expiration_date)
-                        VALUES (%(airline_name_back)s, %(flight_number_back)s, %(departure_date_time_back)s,
+                        VALUES (%(airline_name_to)s, %(flight_number_to)s, %(departure_date_time_to)s,
                                 %(first_name)s, %(last_name)s, %(date_of_birth)s, %(calculated_price)s,
                                 %(email)s, %(purchased_date_time)s, %(card_type)s, %(card_number)s,
                                 %(card_name)s, %(expiration_date)s)
                 """,
                 body,
             )
+        except:
+            cursor.close()
+            return {"msg": "invalid field"}, 409
+
+        if body["type"] == "round-trip":
+            body["calculated_price"] = get_current_price(
+                cursor, body["airline_name_back"], body["flight_number_back"], body["departure_date_time_back"]
+            )
+
+            try:
+                cursor.execute(
+                    """
+                        INSERT INTO ticket(airline_name, flight_number, departure_date_time,
+                                            first_name, last_name, date_of_birth, calculated_price,
+                                            email, purchased_date_time, card_type, card_number,
+                                            card_name, expiration_date)
+                            VALUES (%(airline_name_back)s, %(flight_number_back)s, %(departure_date_time_back)s,
+                                    %(first_name)s, %(last_name)s, %(date_of_birth)s, %(calculated_price)s,
+                                    %(email)s, %(purchased_date_time)s, %(card_type)s, %(card_number)s,
+                                    %(card_name)s, %(expiration_date)s)
+                    """,
+                    body,
+                )
+            except:
+                cursor.close()
+                return {"msg": "invalid field"}, 409
 
         mydb.commit()
 
@@ -268,7 +286,7 @@ def create_new_ticket():
 @jwt_required(locations="cookies")
 def delete_ticket():
     if get_jwt_identity()["type"] != "customer":
-        return {"msg": "customer only"}, 401
+        return {"msg": "customer only"}, 403
 
     body = utility.convertBody(
         json.loads(request.data.decode("UTF-8")),
@@ -298,7 +316,7 @@ def delete_ticket():
             return {"msg": "ticket not exist"}, 404
 
         if result[0][0] != get_jwt_identity()["username"]:
-            return {"msg": "can only unregister tickets belong to the user"}, 401
+            return {"msg": "can only unregister tickets belong to the user"}, 403
 
         cursor.execute(
             """
@@ -311,4 +329,4 @@ def delete_ticket():
 
         mydb.commit()
 
-    return {"msg": "success"}
+    return {"msg": "success"}, 202

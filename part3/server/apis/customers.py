@@ -13,17 +13,15 @@ customers_api = Blueprint("customers_api", __name__)
 def get_customer_info():
     params = utility.convertParams(request.args, {"type": "type", "username": "username"})
 
-    identity = get_jwt_identity()
-    if params["username"] != identity["username"]:
-        return {"msg": "username not match"}, 401
-
     if params == False:
         return {"msg": "missing field"}, 422
 
+    identity = get_jwt_identity()
+    if params["username"] != identity["username"]:
+        return {"msg": "username not match"}, 403
+
     if params["type"] != identity["type"]:
         return {"msg": "wrong user type"}, 409
-
-    print(params)
 
     if params["type"] == "customer":
         with getdb() as mydb:
@@ -35,7 +33,7 @@ def get_customer_info():
                         zip_code, passport_number, passport_expiration,
                         passport_country, date_of_birth
                     FROM customer
-                    WHERE email=%(email)s
+                    WHERE email = %(email)s
             """,
                 {"email": params["username"]},
             )
@@ -93,7 +91,7 @@ def get_customer_info():
 
     elif params["type"] == "staff":
         with getdb() as mydb:
-            cursor = mydb.cursor(prepared=True)
+            cursor = mydb.cursor()
             cursor.execute(
                 """
                     SELECT username, first_name, last_name,
@@ -166,13 +164,13 @@ def get_customers():
 
     identity = get_jwt_identity()
     if identity["type"] != "staff":
-        return {"msg": "staff only"}, 401
+        return {"msg": "staff only"}, 403
 
     with getdb() as mydb:
         cursor = mydb.cursor()
 
-        if utility.getStaff(cursor, get_jwt_identity()["username"], "airline_name")[0] != params["airline"]:
-            return {"msg": "wrong type"}, 401
+        if utility.getStaff(cursor, identity["username"], "airline_name")[0] != params["airline"]:
+            return {"msg": "airline not match"}, 403
 
         cursor.execute(
             """
@@ -181,7 +179,8 @@ def get_customers():
                             zip_code, passport_number, passport_expiration,
                             passport_country, customer.date_of_birth, purchased_date_time,
                             calculated_price
-                    FROM ticket JOIN customer
+                    FROM ticket
+                        JOIN customer
                     WHERE ticket.email = customer.email
                         AND airline_name = %(airline)s
                         AND flight_number = %(flight_number)s
@@ -239,6 +238,7 @@ def get_customers():
 
 
 @customers_api.route("/frequent", methods=["GET"])
+@jwt_required(locations="cookies")
 def get_frequent_customers():
     params = utility.convertParams(
         request.args,
@@ -249,8 +249,16 @@ def get_frequent_customers():
     if params == False:
         return {"msg": "missing field"}, 422
 
+    identity = get_jwt_identity()
+    if identity["type"] != "staff":
+        return {"msg": "staff only"}, 403
+
     with getdb() as mydb:
-        cursor = mydb.cursor(prepared=True)
+        cursor = mydb.cursor()
+
+        if utility.getStaff(cursor, identity["username"], "airline_name")[0] != params["airline"]:
+            return {"msg": "airline not match"}, 403
+
         cursor.execute(
             """
                 SELECT email,

@@ -38,8 +38,8 @@ def login():
         cursor.execute(
             """
             SELECT password, first_name, last_name
-            FROM customer
-            WHERE email=%(email)s
+                FROM customer
+                WHERE email = %(email)s
         """,
             {"email": body["username"]},
         )
@@ -53,10 +53,10 @@ def login():
             users.append(p)
 
         if len(users) == 0:
-            return {"msg": "unknown user"}, 401
+            return {"msg": "unknown user"}, 403
 
         if not bcrypt.checkpw(body["password"].encode("utf-8"), users[0][0].encode("utf-8")):
-            return {"msg": "wrong password"}, 401
+            return {"msg": "wrong password"}, 403
 
         access_token = create_access_token(identity={"type": "customer", "username": body["username"]})
         refresh_token = create_refresh_token(identity={"type": "customer", "username": body["username"]})
@@ -86,8 +86,8 @@ def login():
         cursor.execute(
             """
             SELECT password, airline_name
-            FROM airline_staff
-            WHERE username=%(username)s
+                FROM airline_staff
+                WHERE username=%(username)s
         """,
             {"username": body["username"]},
         )
@@ -101,10 +101,10 @@ def login():
             user.append(p)
 
         if len(user) == 0:
-            return {"msg": "unknown user"}, 401
+            return {"msg": "unknown user"}, 403
 
         if not bcrypt.checkpw(body["password"].encode("utf-8"), user[0][0].encode("utf-8")):
-            return {"msg": "wrong password"}, 401
+            return {"msg": "wrong password"}, 403
 
         access_token = create_access_token(identity={"type": "staff", "username": body["username"]})
         refresh_token = create_refresh_token(identity={"type": "staff", "username": body["username"]})
@@ -173,17 +173,19 @@ def register():
         mydb = getdb()
         cursor = mydb.cursor()
 
-        try:
-            cursor.execute(
-                """
-                SELECT email FROM customer WHERE email=%(email)s
+        cursor.execute(
+            """
+                SELECT email
+                    FROM customer
+                    WHERE email = %(email)s
             """,
-                {"email": body["email"]},
-            )
+            {"email": body["email"]},
+        )
 
-            if sum(1 for (_) in cursor) > 0:
-                return {"msg": "email already exists"}, 409
+        if sum(1 for (_) in cursor) > 0:
+            return {"msg": "email already exists"}, 409
 
+        try:
             cursor.execute(
                 """
                 INSERT INTO customer VALUES (
@@ -216,12 +218,12 @@ def register():
                 """,
                 {"email": body["email"], "phone_number": body["phone_number"]},
             )
-            cursor.close()
-            mydb.commit()
-            mydb.close()
-
         except:
-            return {"msg": "unknown error"}, 500
+            return {"msg": "invalid field"}, 409
+
+        cursor.close()
+        mydb.commit()
+        mydb.close()
 
         return {"msg": "success"}
 
@@ -246,19 +248,20 @@ def register():
         password = bcrypt.hashpw(body["password"].encode("utf-8"), bcrypt.gensalt())
         body["password"] = password
 
+        mydb = getdb()
         cursor = mydb.cursor()
 
+        cursor.execute(
+            """
+            SELECT username FROM airline_staff WHERE username=%(username)s
+        """,
+            {"username": body["username"]},
+        )
+
+        if sum(1 for (_) in cursor) > 0:
+            return {"msg": "user already exists"}, 409
+
         try:
-            cursor.execute(
-                """
-                SELECT username FROM airline_staff WHERE username=%(username)s
-            """,
-                {"username": body["username"]},
-            )
-
-            if sum(1 for (_) in cursor) > 0:
-                return {"msg": "user already exists"}, 409
-
             cursor.execute(
                 """
                 INSERT INTO airline_staff VALUES (
@@ -294,15 +297,13 @@ def register():
                 """,
                 body,
             )
-
-            cursor.close()
-            mydb.commit()
-            mydb.close()
-
         except:
-            return {"msg": "unknown error"}, 500
+            return {"msg": "invalid field"}, 409
+
+        cursor.close()
+        mydb.commit()
+        mydb.close()
 
         return {"msg": "success"}
 
-    else:
-        return {"msg": "unknown user type"}, 422
+    return {"msg": "unknown user type"}, 422

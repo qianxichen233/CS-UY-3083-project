@@ -112,6 +112,7 @@ def getStaff(cursor, username, *args):
         SELECT {select}
             FROM airline_staff
             WHERE username = %(username)s
+            LIMIT 1
     """.format(
             select=select
         ),
@@ -132,6 +133,7 @@ def getFlight(cursor, airline, flight_number, departure_date_time):
                         AND flight_number=%(flight_number)s
                         AND departure_date_time=%(departure_date_time)s
                         AND airplane.ID = airplane_ID
+                    LIMIT 1
         """,
         {"airline_name": airline, "flight_number": flight_number, "departure_date_time": departure_date_time},
     )
@@ -166,6 +168,7 @@ def getCustomer(cursor, email):
                     passport_country, date_of_birth
                 FROM customer
                 WHERE email=%(email)s
+            LIMIT 1
         """,
         {"email": email},
     )

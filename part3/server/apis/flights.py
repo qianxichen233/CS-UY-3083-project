@@ -35,10 +35,10 @@ def get_flights():
     cursor = mydb.cursor()
 
     if get_jwt_identity()["type"] != "staff":
-        return {"msg": "staff only"}, 401
+        return {"msg": "staff only"}, 403
 
     if utility.getStaff(cursor, get_jwt_identity()["username"], "airline_name")[0] != params["airline"]:
-        return {"msg": "airline staff is not authorized to get other airline's information "}, 401
+        return {"msg": "airline staff is not authorized to get other airline's information "}, 403
 
     selector = utility.createSqlQuery(
         [
@@ -127,29 +127,30 @@ def create_flights():
     cursor = mydb.cursor()
 
     if get_jwt_identity()["type"] != "staff":
-        return {"msg": "staff only"}, 401
+        return {"msg": "staff only"}, 403
 
     if utility.getStaff(cursor, get_jwt_identity()["username"], "airline_name")[0] != body["airline_name"]:
-        return {"msg": "airline staff is not authorized to get other airline's information "}, 401
-
-    cursor.execute(
-        """
-            INSERT INTO flight
-                VALUES (%(airline_name)s, %(flight_number)s, %(departure_date_time)s,
-                        %(departure_airport_code)s, %(arrival_date_time)s, %(arrival_airport_code)s,
-                        %(base_price)s, %(airplane_ID)s, "scheduled");
-        """,
-        body,
-    )
+        return {"msg": "airline staff is not authorized to get other airline's information "}, 403
+    try:
+        cursor.execute(
+            """
+                INSERT INTO flight
+                    VALUES (%(airline_name)s, %(flight_number)s, %(departure_date_time)s,
+                            %(departure_airport_code)s, %(arrival_date_time)s, %(arrival_airport_code)s,
+                            %(base_price)s, %(airplane_ID)s, "scheduled");
+            """,
+            body,
+        )
+    except:
+        cursor.close()
+        mydb.close()
+        return {"msg": "invalid field"}, 409
 
     mydb.commit()
     cursor.close()
     mydb.close()
 
-    # result = cursor.fetchall()
-    # print(result)
-
-    return {"msg": "success"}
+    return {"msg": "success"}, 201
 
 
 @flights_api.route("/status", methods=["GET"])
@@ -235,10 +236,10 @@ def update_flights_status():
     cursor = mydb.cursor()
 
     if get_jwt_identity()["type"] != "staff":
-        return {"msg": "staff only"}, 401
+        return {"msg": "staff only"}, 403
 
     if utility.getStaff(cursor, get_jwt_identity()["username"], "airline_name")[0] != body["airline_name"]:
-        return {"msg": "airline staff is not authorized to get other airline's information "}, 401
+        return {"msg": "airline staff is not authorized to get other airline's information "}, 403
 
     cursor.execute(
         """
@@ -273,7 +274,7 @@ def update_flights_status():
     cursor.close()
     mydb.close()
 
-    return {"msg": "success"}
+    return {"msg": "success"}, 202
 
 
 @flights_api.route("/future", methods=["GET"])
@@ -442,7 +443,7 @@ def get_scheduled_flights():
         return {"msg": "missing field"}, 422
 
     if get_jwt_identity()["type"] != params["type"]:
-        return {"msg": "user type not match"}, 401
+        return {"msg": "user type not match"}, 403
 
     selector = utility.createSqlQuery(
         [
@@ -461,9 +462,7 @@ def get_scheduled_flights():
         cursor = mydb.cursor()
 
         if get_jwt_identity()["username"] != params["email"]:
-            return {"msg": "can only flights belong to the user"}, 401
-
-        customer = utility.getCustomer(cursor, params["email"])
+            return {"msg": "can only flights belong to the user"}, 403
 
         cursor.execute(
             """
@@ -497,7 +496,7 @@ def get_scheduled_flights():
         cursor.close()
         mydb.close()
 
-        response = {"flights": [], "customer": customer}
+        response = {"flights": []}
 
         for items in result:
             flight = {
