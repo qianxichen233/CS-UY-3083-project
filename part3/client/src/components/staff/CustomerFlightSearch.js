@@ -35,13 +35,6 @@ const CustomerFlightSearch = (props) => {
                     inputs={[
                         {
                             type: "text",
-                            label: "Airline Name",
-                            value: filter.airline,
-                            onChange: onFilterChange.bind(null, "airline"),
-                            required: "Airline Name is Required",
-                        },
-                        {
-                            type: "text",
                             label: "Customer Email",
                             value: filter.email,
                             onChange: onFilterChange.bind(null, "email"),

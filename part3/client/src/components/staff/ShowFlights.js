@@ -227,8 +227,9 @@ const ShowFlights = (props) => {
                     `http://${process.env.REACT_APP_backend_baseurl}/api/flights/schedule`,
                     {
                         params: {
+                            type: user.type,
                             email: body.email,
-                            airline: body.airline,
+                            airline: user.airline,
                         },
                         withCredentials: true,
                     }
@@ -236,7 +237,7 @@ const ShowFlights = (props) => {
 
                 setResult({
                     type: "customer_flight",
-                    content: result.data.flights,
+                    content: result.data,
                 });
             } catch (e) {
                 console.error(e.response?.data.msg);
@@ -256,7 +257,12 @@ const ShowFlights = (props) => {
         else if (result.type === "customer")
             return <ShowCustomers info={result.content} />;
         else if (result.type == "customer_flight")
-            return <CustomerFlights flights={result.content} />;
+            return (
+                <CustomerFlights
+                    flights={result.content.flights}
+                    customer={result.content.customer}
+                />
+            );
     };
 
     return (

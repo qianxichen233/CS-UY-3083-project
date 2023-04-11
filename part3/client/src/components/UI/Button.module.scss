@@ -23,6 +23,6 @@
 
     &[disabled] {
         background-color: rgba(255, 113, 0, 0.3);
-        cursor: not-allowed;
+        cursor: not-allowed !important;
     }
 }

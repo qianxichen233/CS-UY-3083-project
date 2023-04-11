@@ -172,6 +172,9 @@ def getCustomer(cursor, email):
 
     result = cursor.fetchall()
 
+    if len(result) == 0:
+        return None
+
     (
         email,
         first_name,
@@ -198,7 +201,6 @@ def getCustomer(cursor, email):
     )
 
     result = cursor.fetchall()
-    cursor.close()
 
     phone_numbers = []
     for item in result:

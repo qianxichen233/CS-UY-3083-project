@@ -124,11 +124,10 @@ const dummy_myflights = [
     },
 ];
 
-const convertFlights = (flights) => {
+const convertFlights = ({ flights }) => {
     flights.sort((a, b) => {
         return (
-            new Date(b.departure_date + " " + b.departure_time) -
-            new Date(a.departure_date + " " + a.departure_time)
+            new Date(b.departure_date_time) - new Date(a.departure_date_time)
         );
     });
 
@@ -140,15 +139,19 @@ const convertFlights = (flights) => {
 
     for (const flight of flights) {
         const one_day_before = new Date(
-            new Date(flight.departure_date + " " + flight.departure_time) - 1
+            new Date(flight.departure_date_time) - 1
         );
-        const arrival_date = new Date(
-            flight.arrival_date + " " + flight.arrival_time
-        );
+        const arrival_date = new Date(flight.arrival_date_time);
         if (one_day_before > new Date()) converted.future.push(flight);
         else if (arrival_date < new Date()) converted.past.push(flight);
         else converted.ongoing.push(flight);
     }
+
+    converted.future.sort((a, b) => {
+        return (
+            new Date(a.departure_date_time) - new Date(b.departure_date_time)
+        );
+    });
 
     return converted;
 };
@@ -216,7 +219,8 @@ const ShowFlights = (props) => {
         } else if (type === "myflight") {
             if (!user) return;
             const params = {
-                email: user.email,
+                email: user.username,
+                type: user.type,
             };
 
             if (body.start_date) params["start_date"] = body.start_date;
@@ -234,12 +238,12 @@ const ShowFlights = (props) => {
                     params["destination_airport"] = body.to.value;
             }
 
-            let result;
             try {
-                result = await axios.get(
+                const result = await axios.get(
                     `http://${process.env.REACT_APP_backend_baseurl}/api/flights/schedule`,
                     {
                         params: params,
+                        withCredentials: true,
                     }
                 );
 
@@ -266,7 +270,6 @@ const ShowFlights = (props) => {
             return (
                 <MyFlightsSubpage flights={convertFlights(result.content)} />
             );
-        //return <FlightsSubpage flights={dummy} />;
     };
 
     return (

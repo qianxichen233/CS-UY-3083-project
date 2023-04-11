@@ -60,7 +60,11 @@ const MakeComment = (props) => {
                     placeholder="Comment Here..."
                 />
             </div>
-            <Button text="Post" onClick={onClickHandler} />
+            <Button
+                text="Post"
+                onClick={onClickHandler}
+                disabled={stars === 0}
+            />
             {!!error && <div className={styles.error}>{error}</div>}
         </div>
     );

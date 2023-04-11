@@ -265,7 +265,11 @@ def create_new_ticket():
 
 
 @tickets_api.route("/unregister", methods=["POST"])
+@jwt_required(locations="cookies")
 def delete_ticket():
+    if get_jwt_identity()["type"] != "customer":
+        return {"msg": "customer only"}, 401
+
     body = utility.convertBody(
         json.loads(request.data.decode("UTF-8")),
         {
@@ -281,7 +285,7 @@ def delete_ticket():
 
         cursor.execute(
             """
-                SELECT *
+                SELECT email
                     FROM ticket
                     WHERE ID = %(ticket_id)s
             """,
@@ -293,7 +297,8 @@ def delete_ticket():
         if len(result) == 0:
             return {"msg": "ticket not exist"}, 404
 
-        # to do: authenticate sender
+        if result[0][0] != get_jwt_identity()["username"]:
+            return {"msg": "can only unregister tickets belong to the user"}, 401
 
         cursor.execute(
             """

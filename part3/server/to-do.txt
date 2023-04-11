@@ -218,6 +218,11 @@ return object structure:
 			comment: {
 				rating,
 				comment
+			},
+			customer: {
+				first_name,
+				last_name,
+				date_of_birth
 			}
 		}
 	]

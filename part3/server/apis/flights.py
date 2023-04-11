@@ -1,10 +1,9 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 
 import utility
 import json
 
-from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, unset_jwt_cookies, jwt_required
-from flask_cors import cross_origin
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from database import getdb
 from constant import valid_status
@@ -44,8 +43,8 @@ def get_flights():
     selector = utility.createSqlQuery(
         [
             {"name": "airline", "selector": "flight.airline_name = %s"},
-            {"name": "start_date", "selector": "DATE(departure_date_time) > %s"},
-            {"name": "end_date", "selector": "DATE(departure_date_time) < %s"},
+            {"name": "start_date", "selector": "DATE(departure_date_time) >= %s"},
+            {"name": "end_date", "selector": "DATE(departure_date_time) <= %s"},
             {"name": "source_city", "selector": "departure.city = %s"},
             {"name": "destination_city", "selector": "arrival.city = %s"},
             {"name": "source_airport", "selector": "departure_airport_code = %s"},
@@ -59,11 +58,13 @@ def get_flights():
             SELECT flight.airline_name, flight_number, departure_date_time, departure_airport_code,
                     arrival_date_time, arrival_airport_code, base_price, status,
                     id, seat_number, manufacturing_company, manufacturing_date, age
-                FROM flight NATURAL JOIN airplane JOIN airport AS arrival JOIN airport AS departure
+                FROM flight
+                    NATURAL JOIN airplane
+                    JOIN airport AS arrival
+                    JOIN airport AS departure
                 WHERE airplane.ID = airplane_ID
                     AND arrival.code = arrival_airport_code
                     AND departure.code = departure_airport_code
-                    
                     {selector}
         """.format(
             selector=selector
@@ -173,10 +174,11 @@ def get_flights_status():
             SELECT flight.airline_name,flight_number,departure_date_time,departure_airport_code,
                 arrival_date_time,arrival_airport_code,base_price,status,id, seat_number,
 		        manufacturing_company,manufacturing_date, age
-                FROM flight JOIN airplane
-                WHERE flight.airline_name=%(airline_name)s
-                    AND flight_number=%(flight_number)s
-                    AND departure_date_time=%(departure_date_time)s
+                FROM flight
+                    JOIN airplane
+                WHERE flight.airline_name = %(airline_name)s
+                    AND flight_number = %(flight_number)s
+                    AND departure_date_time = %(departure_date_time)s
                     AND airplane.ID = airplane_ID
         """,
         params,
@@ -316,7 +318,10 @@ def get_future_flights():
         SELECT flight.airline_name, flight_number, departure_date_time, departure_airport_code,
                     arrival_date_time, arrival_airport_code, base_price, status,
                     id, seat_number, manufacturing_company, manufacturing_date, age
-                FROM flight NATURAL JOIN airplane JOIN airport AS arrival JOIN airport AS departure
+                FROM flight
+                    NATURAL JOIN airplane
+                    JOIN airport AS arrival
+                    JOIN airport AS departure
                 WHERE airplane.ID = airplane_ID
                     AND arrival.code = arrival_airport_code
                     AND departure.code = departure_airport_code
@@ -369,7 +374,10 @@ def get_future_flights():
             SELECT flight.airline_name, flight_number, departure_date_time, departure_airport_code,
                         arrival_date_time, arrival_airport_code, base_price, status,
                         id, seat_number, manufacturing_company, manufacturing_date, age
-                    FROM flight NATURAL JOIN airplane JOIN airport AS arrival JOIN airport AS departure
+                    FROM flight
+                        NATURAL JOIN airplane
+                        JOIN airport AS arrival
+                        JOIN airport AS departure
                     WHERE airplane.ID = airplane_ID
                         AND arrival.code = arrival_airport_code
                         AND departure.code = departure_airport_code
@@ -412,6 +420,7 @@ def get_future_flights():
 
 
 @flights_api.route("/schedule", methods=["GET"])
+@jwt_required(locations="cookies")
 def get_scheduled_flights():
     params = utility.convertParams(
         request.args,
@@ -424,7 +433,7 @@ def get_scheduled_flights():
             "destination_airport?": "destination_airport",
             "source_city?": "source_city",
             "source_airport?": "source_airport",
-            "airline?": "airline"
+            "airline?": "airline",
         },
         auto_date=True,
     )
@@ -432,10 +441,13 @@ def get_scheduled_flights():
     if params == False:
         return {"msg": "missing field"}, 422
 
-    selector_new = utility.createSqlQuery(
+    if get_jwt_identity()["type"] != params["type"]:
+        return {"msg": "user type not match"}, 401
+
+    selector = utility.createSqlQuery(
         [
-            {"name": "start_date", "selector": "DATE(departure_date_time) > %s"},
-            {"name": "end_date", "selector": "DATE(departure_date_time) < %s"},
+            {"name": "start_date", "selector": "DATE(departure_date_time) >= %s"},
+            {"name": "end_date", "selector": "DATE(departure_date_time) <= %s"},
             {"name": "source_city", "selector": "departure.city = %s"},
             {"name": "destination_city", "selector": "arrival.city = %s"},
             {"name": "source_airport", "selector": "departure_airport_code = %s"},
@@ -443,25 +455,40 @@ def get_scheduled_flights():
         ],
         params,
     )
-  
-    # if get_jwt_identity()["type"] != "staff":
-    if params["type"] == "customer": 
+
+    if params["type"] == "customer":
         mydb = getdb()
         cursor = mydb.cursor()
+
+        if get_jwt_identity()["username"] != params["email"]:
+            return {"msg": "can only flights belong to the user"}, 401
+
+        customer = utility.getCustomer(cursor, params["email"])
+
         cursor.execute(
             """
-                with tp as (SELECT * 
-                            FROM ticket natural JOIN flight natural left outer JOIN rate 
-                            WHERE email = %(email)s) 
-                select tp.ID, tp.airline_name, tp.flight_number, tp.departure_date_time, tp.departure_airport_code,
+                WITH tp AS
+                    (SELECT * 
+                        FROM ticket
+                            NATURAL JOIN flight
+                            NATURAL LEFT OUTER JOIN rate 
+                        WHERE email = %(email)s
+                    )
+                SELECT tp.ID, tp.airline_name, tp.flight_number, tp.departure_date_time, tp.departure_airport_code,
                     tp.arrival_date_time, tp.arrival_airport_code, tp.base_price, tp.calculated_price,tp.status,
-                    tp.airplane_id, airplane.seat_number, airplane.manufacturing_company, airplane.manufacturing_date, airplane.age, tp.rating, tp.comment
-                from tp, airplane 
-                WHERE airplane.id = tp.airplane_id and
-                    airplane.airline_name = tp.airline_name
-                        {selector_new}
+                    tp.airplane_id, airplane.seat_number, airplane.manufacturing_company, airplane.manufacturing_date,
+                    airplane.age, tp.rating, tp.comment, tp.first_name, tp.last_name, tp.date_of_birth
+                FROM tp
+                    JOIN airplane
+                    JOIN airport AS arrival
+                    JOIN airport AS departure
+                WHERE airplane.id = tp.airplane_id
+                    AND airplane.airline_name = tp.airline_name
+                    AND arrival.code = tp.arrival_airport_code
+                    AND departure.code = tp.departure_airport_code
+                    {selector}
             """.format(
-                selector_new=selector_new
+                selector=selector
             ),
             params,
         )
@@ -469,13 +496,11 @@ def get_scheduled_flights():
         result = cursor.fetchall()
         cursor.close()
         mydb.close()
-        if len(result) == 0:
-            return {"msg": "flight not exist"}, 404
-        response = {"flights": []}
-        print(len(result))
-        for items in result:
 
-            response["flights"].append( {
+        response = {"flights": [], "customer": customer}
+
+        for items in result:
+            flight = {
                 "ticket_id": items[0],
                 "airline_name": items[1],
                 "flight_number": items[2],
@@ -493,33 +518,58 @@ def get_scheduled_flights():
                     "manufacturing_date": items[13],
                     "age": items[14],
                 },
-                "comment": {
+                "customer": {"first_name": items[17], "last_name": items[18], "date_of_birth": items[19]},
+            }
+            if items[15] != None:
+                flight["comment"] = {
                     "rating": items[15],
                     "comment": items[16],
-                },
-            }
-            )
+                }
+
+            response["flights"].append(flight)
+
         return response
-    else:
+
+    elif params["type"] == "staff":
         if "airline" not in params:
             return {"msg": "missing field"}, 422
+
         mydb = getdb()
         cursor = mydb.cursor()
+
+        if utility.getStaff(cursor, get_jwt_identity()["username"], "airline_name")[0] != params["airline"]:
+            return {"msg": "airline staff is not authorized to get other airline's information "}, 401
+
+        customer = utility.getCustomer(cursor, params["email"])
+
+        if customer == None:
+            return {"msg": "unknown email address"}, 404
+
         cursor.execute(
             """
-                with tp as (SELECT * 
-                            FROM ticket natural JOIN flight natural left outer JOIN rate 
-                            WHERE email = %(email)s) 
-                select tp.ID, tp.airline_name, tp.flight_number, tp.departure_date_time, tp.departure_airport_code,
-                    tp.arrival_date_time, tp.arrival_airport_code, tp.base_price, tp.calculated_price,tp.status,
-                    tp.airplane_id, airplane.seat_number, airplane.manufacturing_company, airplane.manufacturing_date, airplane.age, tp.rating, tp.comment
-                from tp, airplane 
-                WHERE airplane.id = tp.airplane_id and
-                    airplane.airline_name = tp.airline_name and
-                    tp.airline_name = %(airline)s
-                        {selector_new}
+                WITH tp AS
+                    (SELECT * 
+                        FROM ticket
+                            NATURAL JOIN flight
+                            NATURAL LEFT OUTER JOIN rate 
+                        WHERE email = %(email)s
+                    ) 
+                SELECT tp.ID, tp.airline_name, tp.flight_number, tp.departure_date_time, tp.departure_airport_code,
+                    tp.arrival_date_time, tp.arrival_airport_code, tp.base_price, tp.calculated_price, tp.status,
+                    tp.airplane_id, airplane.seat_number, airplane.manufacturing_company, airplane.manufacturing_date,
+                    airplane.age, tp.rating, tp.comment, tp.first_name, tp.last_name, tp.date_of_birth
+                FROM tp
+                    JOIN airplane
+                    JOIN airport AS arrival
+                    JOIN airport AS departure
+                WHERE airplane.id = tp.airplane_id
+                    AND airplane.airline_name = tp.airline_name
+                    AND arrival.code = tp.arrival_airport_code
+                    AND departure.code = tp.departure_airport_code
+                    AND tp.airline_name = %(airline)s
+                    {selector}
             """.format(
-                selector_new=selector_new
+                selector=selector
             ),
             params,
         )
@@ -527,13 +577,11 @@ def get_scheduled_flights():
         result = cursor.fetchall()
         cursor.close()
         mydb.close()
-        if len(result) == 0:
-            return {"msg": "flight not exist"}, 404
-        response = {"flights": []}
-        print(len(result))
-        for items in result:
 
-            response["flights"].append( {
+        response = {"flights": [], "customer": customer}
+
+        for items in result:
+            flight = {
                 "ticket_id": items[0],
                 "airline_name": items[1],
                 "flight_number": items[2],
@@ -551,12 +599,16 @@ def get_scheduled_flights():
                     "manufacturing_date": items[13],
                     "age": items[14],
                 },
-                "comment": {
+                "customer": {"first_name": items[17], "last_name": items[18], "date_of_birth": items[19]},
+            }
+            if items[15] != None:
+                flight["comment"] = {
                     "rating": items[15],
                     "comment": items[16],
-                },
-            }
-            )
+                }
+
+            response["flights"].append(flight)
+
         return response
-            
-    
+
+    return {"msg": "unknown type"}, 422
