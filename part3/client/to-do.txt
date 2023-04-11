@@ -1,6 +1,5 @@
 feature to add:
 support add phone numbers and emails at account page
-add error messages when requiest is failed
 add footer
 
 possible feature to add:

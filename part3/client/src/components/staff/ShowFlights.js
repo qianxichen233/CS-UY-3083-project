@@ -219,6 +219,7 @@ const ShowFlights = (props) => {
                     content: result.data,
                 });
             } catch (e) {
+                //to do: flight not exist
                 console.error(e.response?.data.msg);
             }
         } else if (type === "customer_flight") {
@@ -240,6 +241,7 @@ const ShowFlights = (props) => {
                     content: result.data,
                 });
             } catch (e) {
+                //to do: email not exist
                 console.error(e.response?.data.msg);
             }
         }

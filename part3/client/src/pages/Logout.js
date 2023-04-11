@@ -9,9 +9,8 @@ const Logout = () => {
     const navigate = useNavigate();
 
     const logout = async () => {
-        let result;
         try {
-            result = await axios.post(
+            const result = await axios.post(
                 `http://${process.env.REACT_APP_backend_baseurl}/api/logout`,
                 {},
                 {

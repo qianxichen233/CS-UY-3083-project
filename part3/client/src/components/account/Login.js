@@ -53,7 +53,7 @@ const Login = (props) => {
 
             navigate("/");
         } catch (e) {
-            if (e.response?.data.msg) console.log(e.response.data.msg);
+            if (e.response?.data.msg) setError(e.response.data.msg);
             else setError("Unknown Error");
         }
     };

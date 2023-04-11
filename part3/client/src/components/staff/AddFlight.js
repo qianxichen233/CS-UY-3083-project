@@ -56,6 +56,7 @@ const AddFlight = () => {
                 airplane_id: "",
             });
         } catch (e) {
+            //to do: invalid field
             console.error(e.response?.data.msg);
         }
     };
