@@ -417,12 +417,14 @@ def get_scheduled_flights():
         request.args,
         {
             "email": "email",
+            "type": "type",
             "start_date?": "start_date",
             "end_date?": "end_date",
             "destination_city?": "destination_city",
             "destination_airport?": "destination_airport",
             "source_city?": "source_city",
             "source_airport?": "source_airport",
+            "airline?": "airline"
         },
         auto_date=True,
     )
@@ -441,54 +443,120 @@ def get_scheduled_flights():
         ],
         params,
     )
-
+  
     # if get_jwt_identity()["type"] != "staff":
-    cursor = mydb.cursor()
-    cursor.execute(
-        """
-            SELECT ticket.ID, airline_name, flight_number, departure_date_time, departure_airport_code,
-                arrival_date_time, arrival_airport_code, base_price, calculated_price,status,
-                airplane.ID, seat_number, manufacturing_company, manufacturing_date, age, rating, comment
-            FROM flight Natural JOIN ticket Natural Join rate Natural join airplane
-            WHERE 
-            airplane.ID = airplane_id
-            email = %(email)s
-            {select_new}
-        """.format(
-            selector_new=selector_new
-        ),
-        params,
-    )
+    if params["type"] == "customer": 
+        mydb = getdb()
+        cursor = mydb.cursor()
+        cursor.execute(
+            """
+                with tp as (SELECT * 
+                            FROM ticket natural JOIN flight natural left outer JOIN rate 
+                            WHERE email = %(email)s) 
+                select tp.ID, tp.airline_name, tp.flight_number, tp.departure_date_time, tp.departure_airport_code,
+                    tp.arrival_date_time, tp.arrival_airport_code, tp.base_price, tp.calculated_price,tp.status,
+                    tp.airplane_id, airplane.seat_number, airplane.manufacturing_company, airplane.manufacturing_date, airplane.age, tp.rating, tp.comment
+                from tp, airplane 
+                WHERE airplane.id = tp.airplane_id and
+                    airplane.airline_name = tp.airline_name
+                        {selector_new}
+            """.format(
+                selector_new=selector_new
+            ),
+            params,
+        )
 
-    result = cursor.fetchall()
-    cursor.close()
-    if len(result) == 0:
-        return {"msg": "flight not exist"}, 404
+        result = cursor.fetchall()
+        cursor.close()
+        mydb.close()
+        if len(result) == 0:
+            return {"msg": "flight not exist"}, 404
+        response = {"flights": []}
+        print(len(result))
+        for items in result:
 
-    items = result[0]
+            response["flights"].append( {
+                "ticket_id": items[0],
+                "airline_name": items[1],
+                "flight_number": items[2],
+                "departure_date_time": items[3],
+                "departure_airport_code": items[4],
+                "arrival_date_time": items[5],
+                "arrival_airport_code": items[6],
+                "base_price": items[7],
+                "calculated_price": items[8],
+                "status": items[9],
+                "airplane": {
+                    "id": items[10],
+                    "seat_number": items[11],
+                    "manufacturing_company": items[12],
+                    "manufacturing_date": items[13],
+                    "age": items[14],
+                },
+                "comment": {
+                    "rating": items[15],
+                    "comment": items[16],
+                },
+            }
+            )
+        return response
+    else:
+        if "airline" not in params:
+            return {"msg": "missing field"}, 422
+        mydb = getdb()
+        cursor = mydb.cursor()
+        cursor.execute(
+            """
+                with tp as (SELECT * 
+                            FROM ticket natural JOIN flight natural left outer JOIN rate 
+                            WHERE email = %(email)s) 
+                select tp.ID, tp.airline_name, tp.flight_number, tp.departure_date_time, tp.departure_airport_code,
+                    tp.arrival_date_time, tp.arrival_airport_code, tp.base_price, tp.calculated_price,tp.status,
+                    tp.airplane_id, airplane.seat_number, airplane.manufacturing_company, airplane.manufacturing_date, airplane.age, tp.rating, tp.comment
+                from tp, airplane 
+                WHERE airplane.id = tp.airplane_id and
+                    airplane.airline_name = tp.airline_name and
+                    tp.airline_name = %(airline)s
+                        {selector_new}
+            """.format(
+                selector_new=selector_new
+            ),
+            params,
+        )
 
-    response = {
-        "ticket_id": items[0],
-        "airline_name": items[1],
-        "flight_number": items[2],
-        "departure_date_time": items[3],
-        "departure_airport_code": items[4],
-        "arrival_date_time": items[5],
-        "arrival_airport_code": items[6],
-        "base_price": items[7],
-        "calculated_price": items[8],
-        "status": items[9],
-        "airplane": {
-            "id": items[10],
-            "seat_number": items[11],
-            "manufacturing_company": items[12],
-            "manufacturing_date": items[13],
-            "age": items[14],
-        },
-        "comment": {
-            "rating": items[15],
-            "comment": items[16],
-        },
-    }
+        result = cursor.fetchall()
+        cursor.close()
+        mydb.close()
+        if len(result) == 0:
+            return {"msg": "flight not exist"}, 404
+        response = {"flights": []}
+        print(len(result))
+        for items in result:
 
-    return response
+            response["flights"].append( {
+                "ticket_id": items[0],
+                "airline_name": items[1],
+                "flight_number": items[2],
+                "departure_date_time": items[3],
+                "departure_airport_code": items[4],
+                "arrival_date_time": items[5],
+                "arrival_airport_code": items[6],
+                "base_price": items[7],
+                "calculated_price": items[8],
+                "status": items[9],
+                "airplane": {
+                    "id": items[10],
+                    "seat_number": items[11],
+                    "manufacturing_company": items[12],
+                    "manufacturing_date": items[13],
+                    "age": items[14],
+                },
+                "comment": {
+                    "rating": items[15],
+                    "comment": items[16],
+                },
+            }
+            )
+        return response
+            
+    
