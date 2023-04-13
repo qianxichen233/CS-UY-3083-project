@@ -154,6 +154,9 @@ def getFlight(cursor, airline, flight_number, departure_date_time):
         {"airline_name": airline, "flight_number": flight_number, "departure_date_time": departure_date_time},
     )
 
+    if len(cursor.fetchall()) == 0:
+        return None
+
     result = cursor.fetchall()[0]
 
     return {

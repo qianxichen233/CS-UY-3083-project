@@ -1,6 +1,6 @@
 feature to add:
 add footer
 
-possible feature to add:
+possible features to add:
 support update account information
 allow to check revenue based to range speficied

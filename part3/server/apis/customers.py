@@ -172,6 +172,11 @@ def get_customers():
         if utility.getStaff(cursor, identity["username"], "airline_name")[0] != params["airline"]:
             return {"msg": "airline not match"}, 403
 
+        flight = utility.getFlight(cursor, params["airline"], params["flight_number"], params["departure_date_time"])
+
+        if flight == None:
+            return {"msg": "flight not exist"}, 404
+
         cursor.execute(
             """
                 SELECT customer.email, customer.first_name, customer.last_name, building_number,
@@ -228,9 +233,7 @@ def get_customers():
                 }
             )
 
-        response["flight"] = utility.getFlight(
-            cursor, params["airline"], params["flight_number"], params["departure_date_time"]
-        )
+        response["flight"] = flight
 
         cursor.close()
 

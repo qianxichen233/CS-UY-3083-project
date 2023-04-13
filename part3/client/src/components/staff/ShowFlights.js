@@ -9,122 +9,10 @@ import ShowCustomers from "./ShowCustomers";
 import CustomerFlights from "./CustomerFlights";
 import useUser from "../../hooks/useUser";
 
-const dummy_customer = [
-    {
-        address: {
-            apartment_number: "1",
-            building_number: 1,
-            city: "New York",
-            state: "New York",
-            street_name: "Jay St.",
-            zip_code: "11201",
-        },
-        date_of_birth: "Sat, 01 Jan 2000 00:00:00 GMT",
-        email: "qc815@nyu.edu",
-        first_name: "Qianxi",
-        last_name: "Chen",
-        phone_numbers: ["123-456-789"],
-        passport: {
-            country: "China",
-            expiration: "Wed, 31 Dec 2025 00:00:00 GMT",
-            number: "12345",
-        },
-        price: "120.9$",
-        purchased_date: "14, Mar 2023",
-    },
-    {
-        address: {
-            apartment_number: "2",
-            building_number: 1,
-            city: "New York",
-            state: "New York",
-            street_name: "Jay St.",
-            zip_code: "11201",
-        },
-        date_of_birth: "Sat, 01 Jan 2000 00:00:00 GMT",
-        email: "qc815@nyu.edu",
-        first_name: "Qianxi",
-        last_name: "Chen",
-        phone_numbers: ["123-456-789"],
-        passport: {
-            country: "China",
-            expiration: "Wed, 31 Dec 2025 00:00:00 GMT",
-            number: "12345",
-        },
-        price: "99.9$",
-        purchased_date: "12, Mar 2023",
-    },
-];
-
-const dummy_myflights = [
-    {
-        airline_name: "ABC Airline",
-        flight_number: "12345",
-        departure_date: "Fri, 24 May 2023",
-        departure_time: "12:20",
-        departure_airport_code: "ABC",
-        arrival_date: "Fri, 24 May 2023",
-        arrival_time: "16:40",
-        arrival_airport_code: "CBA",
-        base_price: "99.9$",
-        actual_price: "139.9$",
-        time: "4h 20m",
-        status: "scheduled",
-        airplane: {
-            id: "10001",
-            seat_number: "100",
-            manufacturing_company: "Apple",
-            manufacturing_date: "2021-01-01",
-            age: "2",
-        },
-    },
-    {
-        airline_name: "AAA Airline",
-        flight_number: "54321",
-        departure_date: "Fri, 13 Mar 2023",
-        departure_time: "12:20",
-        departure_airport_code: "CBA",
-        arrival_date: "Fri, 13 Mar 2023",
-        arrival_time: "16:50",
-        arrival_airport_code: "ABC",
-        base_price: "109.9$",
-        actual_price: "109.9$",
-        time: "4h 30m",
-        status: "departed",
-        airplane: {
-            id: "10002",
-            seat_number: "90",
-            manufacturing_company: "Banana",
-            manufacturing_date: "2022-05-02",
-            age: "1",
-        },
-    },
-    {
-        airline_name: "AAA Airline",
-        flight_number: "54321",
-        departure_date: "Fri, 19 Feb 2023",
-        departure_time: "14:20",
-        departure_airport_code: "CBA",
-        arrival_date: "Fri, 19 Feb 2023",
-        arrival_time: "18:50",
-        arrival_airport_code: "ABC",
-        base_price: "109.9$",
-        actual_price: "109.9$",
-        time: "4h 30m",
-        status: "arrived",
-        airplane: {
-            id: "10002",
-            seat_number: "90",
-            manufacturing_company: "Banana",
-            manufacturing_date: "2022-05-02",
-            age: "1",
-        },
-    },
-];
-
 const ShowFlights = (props) => {
     const { user } = useUser();
     const [result, setResult] = useState();
+    const [error, setError] = useState("");
 
     const getInitialResult = async () => {
         try {
@@ -155,11 +43,13 @@ const ShowFlights = (props) => {
                 content: result.data.flights,
             });
         } catch (e) {
+            setError(e.response?.data.msg);
             console.error(e.response?.data.msg);
         }
     };
 
     const onSearchHandler = async (search_body) => {
+        setError("");
         if (user.type !== "staff") return;
 
         const { type, body } = search_body;
@@ -197,6 +87,7 @@ const ShowFlights = (props) => {
                     content: result.data.flights,
                 });
             } catch (e) {
+                setError(e.response?.data.msg);
                 console.error(e.response?.data.msg);
             }
         } else if (type === "customer") {
@@ -219,7 +110,7 @@ const ShowFlights = (props) => {
                     content: result.data,
                 });
             } catch (e) {
-                //to do: flight not exist
+                setError(e.response?.data.msg);
                 console.error(e.response?.data.msg);
             }
         } else if (type === "customer_flight") {
@@ -241,13 +132,14 @@ const ShowFlights = (props) => {
                     content: result.data,
                 });
             } catch (e) {
-                //to do: email not exist
+                setError(e.response?.data.msg);
                 console.error(e.response?.data.msg);
             }
         }
     };
 
     const onChange = (type) => {
+        setError("");
         if (type === "flight") getInitialResult();
         else setResult(null);
     };
@@ -270,6 +162,7 @@ const ShowFlights = (props) => {
     return (
         <div className={styles.container}>
             <Search onSearch={onSearchHandler} onChange={onChange} />
+            {!!error && <span className={styles.error}>{error}</span>}
             {renderResult(result)}
         </div>
     );

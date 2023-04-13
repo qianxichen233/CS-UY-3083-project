@@ -51,7 +51,6 @@ const FlightResult = ({
                 }
             );
         } catch (e) {
-            //to do: flight not exist
             console.error(e.response?.data.msg);
         }
     };
