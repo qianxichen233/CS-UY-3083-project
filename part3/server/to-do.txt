@@ -2,6 +2,8 @@ api overview:
 3. POST api/register
 4. POST api/login
 12. POST api/logout
+25. POST api/user/phone_number
+26. POST api/user/email
 
 13. GET api/flights
 15. PUT api/flights
@@ -684,6 +686,36 @@ return object structure:
 	}
 }
 
+25. POST api/user/phone_number
+possible body parameter:
+{
+	type: either "customer" or "staff"
+	username
+	phone_numbers: []
+}
 
+feature:
+NEEDS AUTHENTICATION
+update user phone_numbers
 
+return object structure:
+{
+	msg: either 'success' or 'failed'
+}
+
+26. POST api/user/email
+possible body parameter:
+{
+	username
+	emails: []
+}
+
+feature:
+NEEDS AUTHENTICATION
+update staff emails
+
+return object structure:
+{
+	msg: either 'success' or 'failed'
+}
 

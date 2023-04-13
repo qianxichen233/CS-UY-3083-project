@@ -8,6 +8,7 @@ import useUser from "../../../hooks/useUser";
 import TicketChart from "./TicketChart";
 import Cart from "../../UI/Cart";
 import CustomerItem from "../CustomerItem";
+import { getCookie } from "../../../utility";
 
 const dummy = {
     username: "admin",
@@ -206,6 +207,51 @@ const AccountPanel = (props) => {
         }
     };
 
+    const onAddPhoneNumber = async (phone_number) => {
+        try {
+            const result = await axios.post(
+                `http://${process.env.REACT_APP_backend_baseurl}/api/user/phone_number`,
+                {
+                    type: "staff",
+                    username: user.username,
+                    phone_numbers: [phone_number],
+                },
+                {
+                    withCredentials: true,
+                    headers: {
+                        "X-CSRF-TOKEN": getCookie("csrf_access_token"),
+                    },
+                }
+            );
+
+            fetchUserData();
+        } catch (e) {
+            console.error(e.response?.data.msg);
+        }
+    };
+
+    const onAddEmail = async (email) => {
+        try {
+            const result = await axios.post(
+                `http://${process.env.REACT_APP_backend_baseurl}/api/user/email`,
+                {
+                    username: user.username,
+                    emails: [email],
+                },
+                {
+                    withCredentials: true,
+                    headers: {
+                        "X-CSRF-TOKEN": getCookie("csrf_access_token"),
+                    },
+                }
+            );
+
+            fetchUserData();
+        } catch (e) {
+            console.error(e.response?.data.msg);
+        }
+    };
+
     useEffect(() => {
         fetchUserData();
         fetchRevenue();
@@ -254,10 +300,14 @@ const AccountPanel = (props) => {
                     {
                         name: "Emails",
                         value: data.emails,
+                        add: true,
+                        onAdd: onAddEmail,
                     },
                     {
                         name: "Phone Numbers",
                         value: data.phone_numbers,
+                        add: true,
+                        onAdd: onAddPhoneNumber,
                     },
                 ]}
             />

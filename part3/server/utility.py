@@ -98,6 +98,22 @@ def createSqlQuery(scheme: list, fields: dict):
     return sql
 
 
+def createSqlUpdate(scheme: list, fields: dict):
+    sql = ""
+
+    for item in scheme:
+        if item["name"] not in fields:
+            continue
+
+        selector = item["selector"].replace("%s", f"%({item['name']})s")
+        sql += selector + ", "
+
+    if len(sql) == 0:
+        return sql
+
+    return sql[:-2]
+
+
 def getStaff(cursor, username, *args):
     select = ""
     if len(args) == 0:

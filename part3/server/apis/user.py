@@ -142,6 +142,9 @@ def logout():
 @user_api.route("/register", methods=["POST"])
 def register():
     body = request.json
+    if "register_type" not in body:
+        return {"msg": "missing field"}, 422
+
     if body["register_type"] == "customer":
         body = utility.convertBody(
             body,
@@ -307,3 +310,144 @@ def register():
         return {"msg": "success"}
 
     return {"msg": "unknown user type"}, 422
+
+
+@user_api.route("/user/phone_number", methods=["POST"])
+@jwt_required(locations="cookies")
+def add_phone_numbers():
+    body = request.json
+
+    if "type" not in body:
+        return {"msg": "missing field"}, 422
+
+    if get_jwt_identity()["type"] != body["type"]:
+        return {"msg": "Wrong Type!"}, 403
+
+    if body["type"] == "customer":
+        body = utility.convertBody(
+            body,
+            {
+                "type": "type",
+                "email": "username",
+                "phone_numbers": "phone_numbers",
+            },
+        )
+
+        if body == False:
+            return {"msg": "missing field"}, 422
+
+        if body["email"] != get_jwt_identity()["username"]:
+            return {"msg": "Cannot add phone numbers for other customers!"}, 403
+
+        mydb = getdb()
+        cursor = mydb.cursor()
+
+        try:
+            for phone_number in body["phone_numbers"]:
+                cursor.execute(
+                    """
+                        INSERT INTO customer_phone_number
+                            VALUES (
+                                %(email)s,
+                                %(phone_number)s
+                            )
+                    """,
+                    {"email": body["email"], "phone_number": phone_number},
+                )
+        except:
+            return {"msg": "invalid field"}, 409
+
+        cursor.close()
+        mydb.commit()
+        mydb.close()
+
+        return {"msg": "success"}, 202
+
+    elif body["type"] == "staff":
+        body = utility.convertBody(
+            body,
+            {
+                "type": "type",
+                "username": "username",
+                "phone_numbers": "phone_numbers",
+            },
+        )
+
+        if body == False:
+            return {"msg": "missing field"}, 422
+
+        if body["username"] != get_jwt_identity()["username"]:
+            return {"msg": "Cannot add phone numbers for other staff!"}, 403
+
+        mydb = getdb()
+        cursor = mydb.cursor()
+
+        try:
+            for phone_number in body["phone_numbers"]:
+                cursor.execute(
+                    """
+                        INSERT INTO airline_staff_phone_number
+                            VALUES (
+                                %(username)s,
+                                %(phone_number)s
+                            )
+                    """,
+                    {"username": body["username"], "phone_number": phone_number},
+                )
+        except:
+            return {"msg": "invalid field"}, 409
+
+        cursor.close()
+        mydb.commit()
+        mydb.close()
+
+        return {"msg": "success"}, 202
+
+    return {"msg": "unknown user type"}, 422
+
+
+@user_api.route("/user/email", methods=["POST"])
+@jwt_required(locations="cookies")
+def add_emails():
+    body = request.json
+
+    if get_jwt_identity()["type"] != "staff":
+        return {"msg": "Staff Only!"}, 403
+
+    body = utility.convertBody(
+        body,
+        {
+            "username": "username",
+            "emails": "emails",
+        },
+    )
+
+    if body == False:
+        return {"msg": "missing field"}, 422
+
+    if body["username"] != get_jwt_identity()["username"]:
+        return {"msg": "Cannot add emails for other staff!"}, 403
+
+    mydb = getdb()
+    cursor = mydb.cursor()
+
+    try:
+        for email in body["emails"]:
+            cursor.execute(
+                """
+                    INSERT INTO airline_staff_email_address
+                        VALUES (
+                            %(username)s,
+                            %(email)s
+                        )
+                """,
+                {"username": body["username"], "email": email},
+            )
+    except:
+        return {"msg": "invalid field"}, 409
+
+    cursor.close()
+    mydb.commit()
+    mydb.close()
+
+    return {"msg": "success"}, 202

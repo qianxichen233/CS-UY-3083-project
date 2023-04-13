@@ -6,6 +6,7 @@ import styles from "./AccountPanel.module.scss";
 import DateSearch from "./DateSearch";
 import InfoBox from "./InfoBox";
 import SpendingChart from "./SpendingChart";
+import { getCookie } from "../../utility";
 
 const dummy = {
     address: {
@@ -135,6 +136,29 @@ const AccountPanel = (props) => {
         }
     };
 
+    const onAddPhoneNumber = async (phone_number) => {
+        try {
+            const result = await axios.post(
+                `http://${process.env.REACT_APP_backend_baseurl}/api/user/phone_number`,
+                {
+                    type: "customer",
+                    username: user.username,
+                    phone_numbers: [phone_number],
+                },
+                {
+                    withCredentials: true,
+                    headers: {
+                        "X-CSRF-TOKEN": getCookie("csrf_access_token"),
+                    },
+                }
+            );
+
+            fetchUserData();
+        } catch (e) {
+            console.error(e.response?.data.msg);
+        }
+    };
+
     const fetchSpendingData = async (range) => {
         try {
             const result = axios.get(
@@ -201,6 +225,8 @@ const AccountPanel = (props) => {
                     {
                         name: "Phone Numbers",
                         value: data.phone_numbers,
+                        add: true,
+                        onAdd: onAddPhoneNumber,
                     },
                 ]}
             />
