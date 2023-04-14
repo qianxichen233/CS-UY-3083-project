@@ -2,10 +2,12 @@ import axios from "axios";
 import { useState } from "react";
 import Form from "../UI/Form";
 import { getCookie } from "../../utility";
+import useUser from "../../hooks/useUser";
 
 const AddFlight = () => {
+    const { user } = useUser();
+
     const [info, setInfo] = useState({
-        airline_name: "",
         flight_number: "",
         departure_date: "",
         departure_time: "",
@@ -17,7 +19,12 @@ const AddFlight = () => {
         airplane_id: "",
     });
 
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+
     const onInfoChange = (property, value) => {
+        setError("");
+        setSuccess("");
         setInfo((prev) => {
             const newState = { ...prev };
             newState[property] = value;
@@ -26,13 +33,15 @@ const AddFlight = () => {
     };
 
     const onAddHandler = async () => {
+        setError("");
         const body = { ...info };
         body.departure_date_time =
             body.departure_date + " " + body.departure_time;
         body.arrival_date_time = body.arrival_date + " " + body.arrival_time;
+        body.airline_name = user.airline;
 
         try {
-            const result = await axios.post(
+            const result = await axios.put(
                 `http://${process.env.REACT_APP_backend_baseurl}/api/flights/`,
                 body,
                 {
@@ -55,8 +64,12 @@ const AddFlight = () => {
                 base_price: "",
                 airplane_id: "",
             });
+            setSuccess("Success!");
+            setTimeout(() => {
+                setSuccess("");
+            }, 3000);
         } catch (e) {
-            //to do: invalid field
+            setError(e.response?.data.msg);
             console.error(e.response?.data.msg);
         }
     };
@@ -70,13 +83,6 @@ const AddFlight = () => {
             <Form
                 column="2"
                 inputs={[
-                    {
-                        type: "text",
-                        label: "Airline Name",
-                        value: info.airline_name,
-                        onChange: onInfoChange.bind(null, "airline_name"),
-                        required: "Airline Name is Required",
-                    },
                     {
                         type: "text",
                         label: "Flight Number",
@@ -158,6 +164,8 @@ const AddFlight = () => {
                     onClick: onAddHandler,
                 }}
             />
+            {!!error && <span className="error">{error}</span>}
+            {!!success && <span className="success">{success}</span>}
         </div>
     );
 };

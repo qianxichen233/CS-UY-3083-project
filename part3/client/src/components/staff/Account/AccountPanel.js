@@ -10,67 +10,6 @@ import Cart from "../../UI/Cart";
 import CustomerItem from "../CustomerItem";
 import { getCookie } from "../../../utility";
 
-const dummy = {
-    username: "admin",
-    first_name: "Qianxi",
-    last_name: "Chen",
-    airline_name: "ABC",
-    date_of_birth: "1, Jan, 2000",
-    phone_numbers: ["123-456-789", "233-321-123"],
-    emails: ["qc815@nyu.edu", "test@test.com"],
-};
-
-const dummy_tickets = [
-    {
-        month: "2023-03",
-        number: 12,
-    },
-    {
-        month: "2023-02",
-        number: 19,
-    },
-    {
-        month: "2023-01",
-        number: 9,
-    },
-    {
-        month: "2022-12",
-        number: 4,
-    },
-    {
-        month: "2022-11",
-        number: 23,
-    },
-    {
-        month: "2022-10",
-        number: 10,
-    },
-    {
-        month: "2022-09",
-        number: 17,
-    },
-    {
-        month: "2022-08",
-        number: 10,
-    },
-    {
-        month: "2022-07",
-        number: 4,
-    },
-    {
-        month: "2022-06",
-        number: 5,
-    },
-    {
-        month: "2022-05",
-        number: 16,
-    },
-    {
-        month: "2022-04",
-        number: 9,
-    },
-];
-
 const convertMonth = (number) => {
     ++number;
     if (number <= 9) return "0" + number.toString();
@@ -117,12 +56,9 @@ const AccountPanel = (props) => {
     const [tickets, setTickets] = useState();
 
     const fetchRevenue = async () => {
-        setRevenue({
-            month: "1293.4$",
-            year: "12034.9$",
-        });
-        return;
-        const oneMonthAgo = new Date().setMonth(new Date().getMonth() - 1);
+        const oneMonthAgo = new Date(
+            new Date().setMonth(new Date().getMonth() - 1)
+        );
         const oneYearAgo = new Date(
             new Date().setFullYear(new Date().getFullYear() - 1)
         );
@@ -316,11 +252,11 @@ const AccountPanel = (props) => {
                     <div className={styles.revenue}>
                         <section>
                             <span>Revenue Earned Last Month</span>
-                            <span>{revenue.month}</span>
+                            <span>{revenue.month}$</span>
                         </section>
                         <section>
                             <span>Revenue Earned Last Year</span>
-                            <span>{revenue.year}</span>
+                            <span>{revenue.year}$</span>
                         </section>
                     </div>
                 </Cart>

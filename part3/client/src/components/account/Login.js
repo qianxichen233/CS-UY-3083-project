@@ -108,7 +108,20 @@ const Login = (props) => {
                                 text: "Log in",
                                 onClick: loginHandler,
                             }}
+                            onChange={() => {
+                                setError("");
+                            }}
                         />
+                        {!!error && (
+                            <span
+                                className="error"
+                                style={{
+                                    fontSize: "12pt",
+                                }}
+                            >
+                                {error}
+                            </span>
+                        )}
                     </main>
                     <footer>
                         <section>

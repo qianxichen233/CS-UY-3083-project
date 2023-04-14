@@ -64,6 +64,7 @@ def get_comments():
 @comments_api.route("/", methods=["PUT"])
 @jwt_required(locations="cookies")
 def make_comments():
+    print(json.loads(request.data.decode("UTF-8")))
     body = utility.convertBody(
         json.loads(request.data.decode("UTF-8")),
         {

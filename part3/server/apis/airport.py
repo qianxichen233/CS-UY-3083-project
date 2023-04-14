@@ -36,8 +36,7 @@ def add_airport():
                 """
                     INSERT INTO airport
                         VALUES ( %(airport_code)s, %(name)s,
-                                %(city)s, %(country)s, %(airport_type)s
-                                )
+                                %(city)s, %(country)s, %(airport_type)s)
                 """,
                 body,
             )

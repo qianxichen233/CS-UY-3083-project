@@ -17,10 +17,10 @@ const FlightCustomerSearch = (props) => {
         flight_number: props.default?.flight_number
             ? props.default.flight_number
             : "",
-        departure_date: props.default?.departure_date
+        departure_date: props.default?.departure_date_time
             ? convertDate(props.default.departure_date_time)
             : "",
-        departure_time: props.default?.departure_time
+        departure_time: props.default?.departure_date_time
             ? convertTime(props.default.departure_date_time)
             : "",
     });
@@ -39,8 +39,8 @@ const FlightCustomerSearch = (props) => {
             body: {
                 airline: filter.airline,
                 flight_number: filter.flight_number,
-                departure_date: filter.departure_date,
-                departure_time: filter.departure_time,
+                departure_date_time:
+                    filter.departure_date + " " + filter.departure_time,
             },
         });
     };

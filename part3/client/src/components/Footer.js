@@ -21,14 +21,14 @@ const Footer = () => {
                     </div>
                 </div>
                 <div>
-                    <div></div>
+                    <div>
+                        <img src="/XiaoyiYan.jpeg" width={50} />
+                    </div>
                     <div>
                         <span className={styles.name}>Xiaoyi Yan</span>
                         <div className={styles.item}>
                             <Github size={20} />
-                            <a href="https://github.com/qianxichen233">
-                                Github
-                            </a>
+                            <a href="https://github.com/YSNMYXY">Github</a>
                         </div>
                     </div>
                 </div>

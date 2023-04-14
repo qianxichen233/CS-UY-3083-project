@@ -7,6 +7,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from database import getdb
 from constant import valid_status
+from datetime import datetime
 
 flights_api = Blueprint("flights_api", __name__)
 
@@ -102,7 +103,7 @@ def get_flights():
     return response
 
 
-@flights_api.route("/", methods=["POST"])
+@flights_api.route("/", methods=["PUT"])
 @jwt_required(locations="cookies")
 def create_flights():
     body = utility.convertBody(
@@ -314,6 +315,8 @@ def get_future_flights():
     mydb = getdb()
     cursor = mydb.cursor()
 
+    params["now"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
     cursor.execute(
         """
         SELECT flight.airline_name, flight_number, departure_date_time, departure_airport_code,
@@ -326,6 +329,7 @@ def get_future_flights():
                 WHERE airplane.ID = airplane_ID
                     AND arrival.code = arrival_airport_code
                     AND departure.code = departure_airport_code
+                    AND departure_date_time >= %(now)s
                     {selector_to}
         """.format(
             selector_to=selector_to

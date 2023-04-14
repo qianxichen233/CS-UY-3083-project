@@ -5,6 +5,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import Button from "../UI/Button";
 import axios from "axios";
 import useUser from "../../hooks/useUser";
+import { getCookie } from "../../utility";
 
 const MakeComment = (props) => {
     const { user } = useUser();
@@ -23,18 +24,22 @@ const MakeComment = (props) => {
             return;
         }
 
-        let result;
         try {
-            result = await axios.put(
-                `http://${process.env.REACT_APP_backend_baseurl}/api/comment`,
+            const result = await axios.put(
+                `http://${process.env.REACT_APP_backend_baseurl}/api/comment/`,
                 {
-                    email: user.email,
+                    email: user.username,
                     airline_name: props.airline_name,
                     flight_number: props.flight_number,
-                    arrival_date: props.arrival_date,
-                    departure_date: props.departure_date,
+                    departure_date_time: props.departure_date_time,
                     rating: stars,
                     comment: comment,
+                },
+                {
+                    withCredentials: true,
+                    headers: {
+                        "X-CSRF-TOKEN": getCookie("csrf_access_token"),
+                    },
                 }
             );
 

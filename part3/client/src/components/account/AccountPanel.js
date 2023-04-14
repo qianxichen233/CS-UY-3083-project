@@ -8,81 +8,13 @@ import InfoBox from "./InfoBox";
 import SpendingChart from "./SpendingChart";
 import { getCookie } from "../../utility";
 
-const dummy = {
-    address: {
-        apartment_number: "1",
-        building_number: 1,
-        city: "New York",
-        state: "New York",
-        street_name: "Jay St.",
-        zip_code: "11201",
-    },
-    date_of_birth: "Sat, 01 Jan 2000 00:00:00 GMT",
-    email: "qc815@nyu.edu",
-    first_name: "Qianxi",
-    last_name: "Chen",
-    phone_numbers: ["123-456-789"],
-    passport: {
-        country: "China",
-        expiration: "Wed, 31 Dec 2025 00:00:00 GMT",
-        number: "12345",
-    },
-};
-
-const dummy_spending = [
-    {
-        month: "2023-03",
-        cost: 109.9,
-    },
-    {
-        month: "2023-02",
-        cost: 306.5,
-    },
-    {
-        month: "2023-01",
-        cost: 0,
-    },
-    {
-        month: "2022-12",
-        cost: 123.4,
-    },
-    {
-        month: "2022-11",
-        cost: 634.2,
-    },
-    {
-        month: "2022-10",
-        cost: 123.5,
-    },
-    {
-        month: "2022-09",
-        cost: 233.3,
-    },
-    {
-        month: "2022-08",
-        cost: 0,
-    },
-    {
-        month: "2022-07",
-        cost: 0,
-    },
-    {
-        month: "2022-06",
-        cost: 123.4,
-    },
-    {
-        month: "2022-05",
-        cost: 455.6,
-    },
-    {
-        month: "2022-04",
-        cost: 432.1,
-    },
-];
-
 const convertSpending = (spending) => {
     const result = {};
-    for (const item of spending) result[item.month] = item.cost;
+    for (const item of spending) {
+        const month =
+            item.month.substring(0, 4) + "-" + item.month.substring(4);
+        result[month] = item.cost;
+    }
     return result;
 };
 
@@ -101,14 +33,12 @@ const AccountPanel = (props) => {
 
     const [data, setData] = useState();
 
+    const halfYearAgo = new Date().setDate(new Date().getDate() - 183);
+
     const [spendingRange, setSpendingRange] = useState({
-        from: getYearMonth(
-            new Date(new Date().setFullYear(new Date().getFullYear() - 1))
-        ),
+        from: getYearMonth(new Date(halfYearAgo)),
         to: getYearMonth(new Date()),
     });
-
-    const halfYearAgo = new Date().setDate(new Date().getDate() - 183);
 
     const [chartRange, setChartRange] = useState({
         from: getYearMonth(new Date(halfYearAgo)),
@@ -161,10 +91,11 @@ const AccountPanel = (props) => {
 
     const fetchSpendingData = async (range) => {
         try {
-            const result = axios.get(
-                `http://${process.env.REACT_APP_backend_baseurl}/api/spending`,
+            const result = await axios.get(
+                `http://${process.env.REACT_APP_backend_baseurl}/api/spending/`,
                 {
                     params: {
+                        email: user.username,
                         from: range.from,
                         to: range.to,
                     },
@@ -172,7 +103,7 @@ const AccountPanel = (props) => {
                 }
             );
 
-            setSpending(result.data.flights);
+            setSpending(result.data.costs);
         } catch (e) {
             console.error(e.response?.data.msg);
         }
@@ -183,8 +114,7 @@ const AccountPanel = (props) => {
     }, []);
 
     useEffect(() => {
-        //fetchSpendingData(spendingRange);
-        setSpending(dummy_spending);
+        fetchSpendingData(spendingRange);
     }, [spendingRange]);
 
     const onSpendingDateChangeHandler = ({ from, to }) => {

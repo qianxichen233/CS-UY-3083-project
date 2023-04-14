@@ -154,26 +154,28 @@ def getFlight(cursor, airline, flight_number, departure_date_time):
         {"airline_name": airline, "flight_number": flight_number, "departure_date_time": departure_date_time},
     )
 
-    if len(cursor.fetchall()) == 0:
+    result = cursor.fetchall()
+
+    if len(result) == 0:
         return None
 
-    result = cursor.fetchall()[0]
+    items = result[0]
 
     return {
-        "airline_name": result[0],
-        "flight_number": result[1],
-        "departure_date_time": result[2],
-        "departure_airport_code": result[3],
-        "arrival_date_time": result[4],
-        "arrival_airport_code": result[5],
-        "base_price": result[6],
-        "status": result[7],
+        "airline_name": items[0],
+        "flight_number": items[1],
+        "departure_date_time": items[2],
+        "departure_airport_code": items[3],
+        "arrival_date_time": items[4],
+        "arrival_airport_code": items[5],
+        "base_price": items[6],
+        "status": items[7],
         "airplane": {
-            "id": result[8],
-            "seat_number": result[9],
-            "manufacturing_company": result[10],
-            "manufacturing_date": result[11],
-            "age": result[12],
+            "id": items[8],
+            "seat_number": items[9],
+            "manufacturing_company": items[10],
+            "manufacturing_date": items[11],
+            "age": items[12],
         },
     }
 

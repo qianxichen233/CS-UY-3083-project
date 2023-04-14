@@ -3,37 +3,21 @@ import { useEffect, useState } from "react";
 import CommentList from "./CommentList";
 import CommentSearch from "./CommentSearch";
 
-const dummy = [
-    {
-        author: "Qianxi Chen",
-        rating: 4,
-        comment: "Great experience",
-    },
-    {
-        author: "Bob",
-        rating: 5,
-        comment: "good",
-    },
-    {
-        author: "Alice",
-        rating: 1,
-        comment: "awful",
-    },
-];
-
 const FlightComments = ({ flight: initalFlight }) => {
     const [flight, setFlight] = useState(initalFlight);
     const [comments, setComments] = useState([]);
+    const [error, setError] = useState("");
 
     const onSearchHandler = (flight) => {
         setFlight({
             airline: flight.body.airline,
             flight_number: flight.body.flight_number,
-            departure_date: flight.body.departure,
+            departure_date_time: flight.body.departure_date_time,
         });
     };
 
     const fetchComments = async (flight) => {
+        setError("");
         try {
             const result = await axios.get(
                 `http://${process.env.REACT_APP_backend_baseurl}/api/comment`,
@@ -41,7 +25,7 @@ const FlightComments = ({ flight: initalFlight }) => {
                     params: {
                         airline_name: flight.airline,
                         flight_number: flight.flight_number,
-                        departure_date: flight.departure_date,
+                        departure_date_time: flight.departure_date_time,
                     },
                     withCredentials: true,
                 }
@@ -49,20 +33,21 @@ const FlightComments = ({ flight: initalFlight }) => {
 
             setComments(result.data.comments);
         } catch (e) {
+            setComments([]);
+            setError(e.response?.data.msg);
             console.error(e.response?.data.msg);
         }
     };
 
     useEffect(() => {
         if (!flight) return;
-        //fetchComments(flight);
-        setComments(dummy);
+        fetchComments(flight);
     }, [flight]);
 
     return (
         <div>
             <CommentSearch onSearch={onSearchHandler} value={flight} />
-            <CommentList comments={comments} />
+            <CommentList comments={comments} error={error} />
         </div>
     );
 };

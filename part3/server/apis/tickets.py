@@ -8,6 +8,7 @@ from flask_jwt_extended import (
 import utility, json
 from database import getdb
 from datetime import datetime
+from dateutil import parser
 from constant import *
 
 tickets_api = Blueprint("tickets_api", __name__)
@@ -148,6 +149,9 @@ def get_ticket_price():
     if params == False:
         return {"msg": "missing field"}, 422
 
+    if parser.parse(params["departure_date_time"]) < datetime.now():
+        return {"msg": "past flight"}, 409
+
     with getdb() as mydb:
         cursor = mydb.cursor()
         cursor.execute(
@@ -203,8 +207,18 @@ def create_new_ticket():
     if body == False:
         return {"msg": "missing field"}, 422
 
-    if body["type"] == "round-trip" and "airline_name_back" not in body:
-        return {"msg": "missing field"}, 422
+    if parser.parse(body["departure_date_time_to"]) < datetime.now():
+        return {"msg": "past flight"}, 409
+
+    if body["type"] == "round-trip":
+        if (
+            "airline_name_back" not in body
+            or "flight_number_back" not in body
+            or "departure_date_time_back" not in body
+        ):
+            return {"msg": "missing field"}, 422
+        if parser.parse(body["departure_date_time_back"]) < datetime.now():
+            return {"msg": "past flight"}, 409
 
     identity = get_jwt_identity()
     if identity["type"] != "customer":
@@ -303,9 +317,10 @@ def delete_ticket():
 
         cursor.execute(
             """
-                SELECT email
+                SELECT email, departure_date_time
                     FROM ticket
                     WHERE ID = %(ticket_id)s
+                    LIMIT 1
             """,
             body,
         )
@@ -317,6 +332,9 @@ def delete_ticket():
 
         if result[0][0] != get_jwt_identity()["username"]:
             return {"msg": "can only unregister tickets belong to the user"}, 403
+
+        if result[0][1] < datetime.now():
+            return {"msg": "past flight"}, 409
 
         cursor.execute(
             """

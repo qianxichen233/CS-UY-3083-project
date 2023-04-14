@@ -27,9 +27,11 @@ const filterSpending = (spending, range) => {
 
 const SpendingChart = (props) => {
     const filtered = filterSpending(props.spending, props.range);
-    const total = Object.values(props.spending).reduce((prev, spending) => {
-        return prev + spending;
-    }, 0);
+    const total = Object.values(props.spending)
+        .reduce((prev, spending) => {
+            return prev + +spending;
+        }, 0)
+        .toFixed(2);
 
     const options = {
         maintainAspectRatio: false,
@@ -83,7 +85,7 @@ const SpendingChart = (props) => {
                     From {props.spendingRange.from} To {props.spendingRange.to}
                 </span>
             </div>
-            <Bar options={options} data={data} />
+            {!!total && <Bar options={options} data={data} />}
         </div>
     );
 };

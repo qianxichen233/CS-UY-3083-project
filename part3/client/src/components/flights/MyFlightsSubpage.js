@@ -166,8 +166,9 @@ const MyFlightsSubpage = ({ flights }) => {
                                     <MakeComment
                                         airline_name={flight.airline_name}
                                         flight_number={flight.flight_number}
-                                        arrival_date={flight.arrival_date}
-                                        departure_date={flight.departure_date}
+                                        departure_date_time={
+                                            flight.departure_date_time
+                                        }
                                     />
                                 </div>
                             ))}

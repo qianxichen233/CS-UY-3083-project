@@ -7,4 +7,28 @@
     justify-content: center;
     flex-direction: column;
     gap: 30px;
+
+    .nocomment {
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        color: #ff7100;
+        font-size: 16pt;
+        font-weight: 600;
+    }
+
+    .rating {
+        color: #ff7100;
+        font-size: 16pt;
+        font-weight: 600;
+    }
+
+    .error {
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        color: red;
+        font-size: 16pt;
+        font-weight: 600;
+    }
 }

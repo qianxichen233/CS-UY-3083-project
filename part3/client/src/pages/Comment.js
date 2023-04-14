@@ -15,13 +15,13 @@ const Comment = () => {
         if (user?.type !== "staff") navigate("/");
         const airline = searchParams.get("airline");
         const flight_number = searchParams.get("flight");
-        const departure_date = searchParams.get("departure");
-        //if (airline !== user.airline) navigate("/");
+        const departure_date_time = searchParams.get("departure");
+        if (airline !== user.airline) navigate("/");
 
         setFlight({
             airline,
             flight_number,
-            departure_date,
+            departure_date_time,
         });
     }, [searchParams, user]);
 

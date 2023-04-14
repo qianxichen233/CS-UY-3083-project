@@ -73,6 +73,7 @@ const Form = (props) => {
     };
 
     const onChangeHandler = (index, value) => {
+        if (props.onChange) props.onChange();
         if (error && index === error.index) setError(null);
         props.inputs[index].onChange(value);
     };

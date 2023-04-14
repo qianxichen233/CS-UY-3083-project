@@ -35,7 +35,7 @@ def get_revenue():
         cursor.execute(
             """
                     SELECT EXTRACT(YEAR_MONTH FROM ticket.purchased_date_time) AS yearmonth,
-                        Sum(calculated_price) AS count
+                        SUM(calculated_price) AS sum
                     FROM ticket
                     WHERE airline_name = %(airline)s
                     HAVING
@@ -47,7 +47,10 @@ def get_revenue():
 
         result = cursor.fetchall()
         cursor.close()
-        response = {}
-        response["revenue"] = result[0][1]
+
+        if len(result) == 0:
+            response = {"revenue": 0}
+        else:
+            response = {"revenue": result[0][1]}
 
     return response

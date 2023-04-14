@@ -36,3 +36,23 @@
         transform: rotate(360deg);
     }
 }
+
+.error {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    color: red;
+    font-size: 16pt;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+.success {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    color: green;
+    font-size: 16pt;
+    font-weight: 600;
+    margin-top: 10px;
+}

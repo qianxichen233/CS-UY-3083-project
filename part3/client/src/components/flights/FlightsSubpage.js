@@ -6,6 +6,7 @@ import Button from "../UI/Button";
 import styles from "./FlightsSubpage.module.scss";
 import TicketForm from "./TicketForm";
 import axios from "axios";
+import { getCookie } from "../../utility";
 
 const selectedOne = (selectedFlights) => {
     return selectedFlights.reduce((prev, cur) => {
@@ -162,6 +163,9 @@ const FlightsSubpage = (props) => {
                 body,
                 {
                     withCredentials: true,
+                    headers: {
+                        "X-CSRF-TOKEN": getCookie("csrf_access_token"),
+                    },
                 }
             );
 
