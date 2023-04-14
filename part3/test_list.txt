@@ -59,7 +59,6 @@ login as staff:
 27. check flights of a particular customer
 	- try with unexist customer
 28. create a new flight
-	- try with invalid airline
 	- try with invalid airport code
 	- try with invalid airplane id
 29. add a new airplane

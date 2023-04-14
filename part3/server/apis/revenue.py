@@ -1,11 +1,13 @@
 from flask import Blueprint, request, jsonify
 import utility
 from database import getdb
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 revenue_api = Blueprint("revenue_api", __name__)
 
 
 @revenue_api.route("/", methods=["GET"])
+@jwt_required(locations="cookies")
 def get_revenue():
     params = utility.convertParams(
         request.args,
@@ -20,8 +22,15 @@ def get_revenue():
     if params == False:
         return {"msg": "missing field"}, 422
 
+    identity = get_jwt_identity()
+    if identity["type"] != "staff":
+        return {"msg": "Staff Only"}, 403
+
     with getdb() as mydb:
         cursor = mydb.cursor()
+
+        if utility.getStaff(cursor, get_jwt_identity()["username"], "airline_name")[0] != params["airline"]:
+            return {"msg": "airline staff is not authorized to get other airline's information "}, 403
 
         cursor.execute(
             """

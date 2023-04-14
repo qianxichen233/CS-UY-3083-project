@@ -1,11 +1,13 @@
 from flask import Blueprint, request, jsonify
 import utility
 from database import getdb
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 spending_api = Blueprint("spending_api", __name__)
 
 
 @spending_api.route("/", methods=["GET"])
+@jwt_required(locations="cookies")
 def get_spending():
     params = utility.convertParams(
         request.args,
@@ -19,6 +21,13 @@ def get_spending():
 
     if params == False:
         return {"msg": "missing field"}, 422
+
+    identity = get_jwt_identity()
+    if identity["type"] != "customer":
+        return {"msg": "Customer Only"}, 403
+
+    if identity["username"] != params["email"]:
+        return {"msg": "email not match"}, 403
 
     with getdb() as mydb:
         cursor = mydb.cursor()

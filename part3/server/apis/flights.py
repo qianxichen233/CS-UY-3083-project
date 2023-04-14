@@ -537,7 +537,7 @@ def get_scheduled_flights():
         cursor = mydb.cursor()
 
         if utility.getStaff(cursor, get_jwt_identity()["username"], "airline_name")[0] != params["airline"]:
-            return {"msg": "airline staff is not authorized to get other airline's information "}, 401
+            return {"msg": "airline staff is not authorized to get other airline's information "}, 403
 
         customer = utility.getCustomer(cursor, params["email"])
 
