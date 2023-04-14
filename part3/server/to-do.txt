@@ -320,7 +320,7 @@ NEEDS AUTHENTICATION
 possible query parameters:
 	airline_name
 	flight_number
-	departure_date
+	departure_date_time
 
 feature:
 return all comments to flights which belong to the flight
@@ -338,16 +338,17 @@ return object structure:
 
 11. GET api/spending
 possible query parameters:
+	email
 	from
 	to
 
 feature:
 NEEDS AUTHENTICATION
-return all flight costs within the range, monthly
+return all ticket costs within the range, monthly
 
 return object structure:
 {
-	flights: [
+	costs: [
 		{
 			month,
 			cost
@@ -500,7 +501,6 @@ return object structure:
 possible body parameters:
 {
 	airline_name,
-	ID,
 	seat_number,
 	manufacturing_company,
 	manufacturing_date,
