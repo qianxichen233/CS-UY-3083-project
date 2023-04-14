@@ -1,0 +1,76 @@
+not login:
+1. search flights with departure date, source city, destination city
+2. search flights with departure date, source airport code, destination airport code
+3. search flights with departure date, return date, source airport code, destination city
+	- try with unexist airport code
+	- try with unexist city
+
+4. check flight status
+	- try with unexist airline
+	- try with unexist flight number
+	- try with unexist departure date
+
+register:
+5. register as customer
+	- try with email that already exists
+6. register as staff
+	- try with username that already exists
+
+login:
+7. login as customer
+	- try with unexist email
+	- try with wrong password
+8. login as staff
+	- try with unexist username
+	- try with wrong password
+
+login as customer:
+- on main page:
+9. purchase a ticket
+10. check all purchased tickets
+11. filter purchased tickets with range specified
+12. filter purchased tickets with specified destination city
+13. filter purchased tickets with specified source airport
+14. filter purchased tickets with date range, source city, destination airport
+	- try with unexist city name
+	- try with unexist airport
+15. cancel a ticket
+16. comment on a flight
+	- try with empty comments
+	- try with no rating (should be disallowed)
+- on account page:
+17. add a phone number
+18. track spendings
+19. log out
+
+login as staff:
+- on main page:
+20. by default flights in next 30 days should be shown, check if true
+21. view flights with date range
+22. view flights with source city and destination airport
+23. view flights with date range, source airport and destination city
+	- try with unexist airport
+	- try with unexist city
+24. change flight status
+25. view flight ratings
+	- check if average rating is correct
+26. check customers of a particular flight
+	- try with unexist flight
+27. check flights of a particular customer
+	- try with unexist customer
+28. create a new flight
+	- try with invalid airline
+	- try with invalid airport code
+	- try with invalid airplane id
+29. add a new airplane
+	- try with negative seat number
+30. add a new airport
+- on account page:
+31. add a phone number
+32. add an email
+33. check if most frequent customer exists
+34. view reports
+	- try at least 3 different ranges
+35. check if earned revenue exists
+36. log out
+
