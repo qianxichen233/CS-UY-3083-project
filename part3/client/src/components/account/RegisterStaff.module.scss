@@ -25,7 +25,7 @@
         align-items: center;
         justify-content: center;
 
-        > div:not(.success) {
+        > div:not(.message) {
             height: 90%;
             width: 90%;
 
@@ -62,7 +62,7 @@
             }
         }
 
-        .success {
+        .message {
             position: absolute;
             bottom: 20px;
 

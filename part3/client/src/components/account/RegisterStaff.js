@@ -153,8 +153,13 @@ const RegisterStaff = (props) => {
                         </div>
                     </footer>
                 </div>
-                <div className={styles.success}>
-                    {successMsg ? <span>{successMsg}</span> : null}
+                <div className={styles.message}>
+                    {successMsg ? (
+                        <span style={{ color: "green" }}>{successMsg}</span>
+                    ) : null}
+                    {error ? (
+                        <span style={{ color: "red" }}>{error}</span>
+                    ) : null}
                 </div>
             </div>
         </div>
