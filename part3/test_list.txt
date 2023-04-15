@@ -15,6 +15,7 @@ register:
 	- try with email that already exists
 6. register as staff
 	- try with username that already exists
+	- try with unexist airline
 
 login:
 7. login as customer
