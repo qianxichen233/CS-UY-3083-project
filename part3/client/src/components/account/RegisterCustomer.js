@@ -161,6 +161,13 @@ const RegisterCustomer = (props) => {
                             },
                             {
                                 type: "text",
+                                label: "City",
+                                value: info.city,
+                                onChange: onInfoChange.bind(null, "city"),
+                                required: "City is Required",
+                            },
+                            {
+                                type: "text",
                                 label: "Zip Code",
                                 value: info.zip_code,
                                 onChange: onInfoChange.bind(null, "zip_code"),

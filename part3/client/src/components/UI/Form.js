@@ -55,7 +55,7 @@ const renderInput = ({
 
 const checkInput = (inputs) => {
     for (const [index, input] of inputs.entries()) {
-        if (input.required && !input.value)
+        if (input.required && !input.value.trim())
             return {
                 index: index,
                 error: input.required,

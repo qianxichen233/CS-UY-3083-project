@@ -215,7 +215,7 @@ def register():
                 """
                     INSERT INTO customer_phone_number
                         VALUES (
-                            %(emails)s,
+                            %(email)s,
                             %(phone_number)s
                         )
                 """,
