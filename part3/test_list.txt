@@ -4,6 +4,7 @@ not login:
 3. search flights with departure date, return date, source airport code, destination city
 	- try with unexist airport code
 	- try with unexist city
+	- try with valid input but no result found
 
 4. check flight status
 	- try with unexist airline
@@ -35,6 +36,7 @@ login as customer:
 14. filter purchased tickets with date range, source city, destination airport
 	- try with unexist city name
 	- try with unexist airport
+	- try with valid input but no result found
 15. cancel a ticket
 16. comment on a flight
 	- try with empty comments
@@ -52,6 +54,7 @@ login as staff:
 23. view flights with date range, source airport and destination city
 	- try with unexist airport
 	- try with unexist city
+	- try with valid input but no result found
 24. change flight status
 25. view flight ratings
 	- check if average rating is correct
@@ -63,7 +66,7 @@ login as staff:
 	- try with invalid airport code
 	- try with invalid airplane id
 29. add a new airplane
-	- try with negative seat number
+	- try with negative seat number (should have error)
 30. add a new airport
 - on account page:
 31. add a phone number
