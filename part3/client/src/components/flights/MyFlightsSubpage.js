@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import DisplayComment from "../comment/DisplayComment";
 import MakeComment from "../comment/MakeComment";
 import Button from "../UI/Button";
@@ -19,6 +19,16 @@ const MyFlightsSubpage = ({ flights }) => {
         ongoing: 3,
         past: 3,
     });
+
+    useEffect(() => {
+        setSelected(
+            Array(
+                flights.future.length +
+                    flights.ongoing.length +
+                    flights.past.length
+            ).fill(false)
+        );
+    }, [flights]);
 
     const incrementIndex = (type) => {
         setMaxIndex((prev) => {
