@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import axios from "axios";
 
@@ -98,8 +98,7 @@ const ShowFlights = (props) => {
                         params: {
                             airline: user.airline,
                             flight_number: body.flight_number,
-                            departure_date_time:
-                                body.departure_date + " " + body.departure_time,
+                            departure_date_time: body.departure_date_time,
                         },
                         withCredentials: true,
                     }
@@ -150,7 +149,7 @@ const ShowFlights = (props) => {
             return <FlightsSubpage flights={result.content} />;
         else if (result.type === "customer")
             return <ShowCustomers info={result.content} />;
-        else if (result.type == "customer_flight")
+        else if (result.type === "customer_flight")
             return (
                 <CustomerFlights
                     flights={result.content.flights}
