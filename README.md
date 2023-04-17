@@ -1,6 +1,6 @@
 
 
-# CS-UY 3083 Air Ticket Web System
+# CS-UY 3083 Air Ticket Reservation Web System
 ---
 ### Project Description
 This project is made for CS-UY 3083 (Intro to database)
