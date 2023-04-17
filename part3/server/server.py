@@ -49,11 +49,6 @@ app.config["JWT_CSRF_CHECK_FORM"] = True
 jwt = JWTManager(app)
 
 
-@app.route("/", methods=["GET"])
-def home():
-    return render_template("index.html")
-
-
 app.register_blueprint(airplane_api, url_prefix="/api/airplane")
 app.register_blueprint(airport_api, url_prefix="/api/airport")
 app.register_blueprint(comments_api, url_prefix="/api/comment")
@@ -63,6 +58,11 @@ app.register_blueprint(spending_api, url_prefix="/api/spending")
 app.register_blueprint(tickets_api, url_prefix="/api/tickets")
 app.register_blueprint(revenue_api, url_prefix="/api/revenue")
 app.register_blueprint(user_api, url_prefix="/api")
+
+
+@app.route("/", methods=["GET"])
+def home():
+    return render_template("index.html")
 
 
 # @app.after_request
