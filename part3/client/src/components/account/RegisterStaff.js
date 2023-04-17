@@ -143,6 +143,7 @@ const RegisterStaff = (props) => {
                             text: "Register",
                             onClick: registerHandler,
                         }}
+                        onChange={() => setError("")}
                     />
                     <footer>
                         <div>

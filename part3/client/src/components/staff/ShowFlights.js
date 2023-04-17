@@ -67,10 +67,10 @@ const ShowFlights = (props) => {
                     params["source_airport"] = body.source.value;
             }
             if (body.target.value) {
-                if (body.source.type === "city")
-                    params["destination_city"] = body.source.value;
-                else if (body.source.type === "airport")
-                    params["destination_airport"] = body.source.value;
+                if (body.target.type === "city")
+                    params["destination_city"] = body.target.value;
+                else if (body.target.type === "airport")
+                    params["destination_airport"] = body.target.value;
             }
 
             try {
