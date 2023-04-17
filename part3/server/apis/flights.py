@@ -15,19 +15,22 @@ flights_api = Blueprint("flights_api", __name__)
 @flights_api.route("/", methods=["GET"])
 @jwt_required(locations="cookies")
 def get_flights():
-    params = utility.convertParams(
-        request.args,
-        {
-            "airline": "airline",
-            "start_date?": "start_date",
-            "end_date?": "end_date",
-            "source_city?": "source_city",
-            "source_airport?": "source_airport",
-            "destination_city?": "destination_city",
-            "destination_airport?": "destination_airport",
-        },
-        auto_date=True,
-    )
+    try:
+        params = utility.convertParams(
+            request.args,
+            {
+                "airline": "airline",
+                "start_date?": "start_date",
+                "end_date?": "end_date",
+                "source_city?": "source_city",
+                "source_airport?": "source_airport",
+                "destination_city?": "destination_city",
+                "destination_airport?": "destination_airport",
+            },
+            auto_date=True,
+        )
+    except:
+        return {"msg": "invalid field"}, 422
 
     if params == False:
         return {"msg": "missing field"}, 422
@@ -106,20 +109,23 @@ def get_flights():
 @flights_api.route("/", methods=["PUT"])
 @jwt_required(locations="cookies")
 def create_flights():
-    body = utility.convertBody(
-        json.loads(request.data.decode("UTF-8")),
-        {
-            "airline_name": "airline_name",
-            "flight_number": "flight_number",
-            "departure_date_time": "departure_date_time",
-            "departure_airport_code": "departure_airport_code",
-            "arrival_date_time": "arrival_date_time",
-            "arrival_airport_code": "arrival_airport_code",
-            "base_price": "base_price",
-            "airplane_ID": "airplane_id",
-        },
-        auto_date=True,
-    )
+    try:
+        body = utility.convertBody(
+            json.loads(request.data.decode("UTF-8")),
+            {
+                "airline_name": "airline_name",
+                "flight_number": "flight_number",
+                "departure_date_time": "departure_date_time",
+                "departure_airport_code": "departure_airport_code",
+                "arrival_date_time": "arrival_date_time",
+                "arrival_airport_code": "arrival_airport_code",
+                "base_price": "base_price",
+                "airplane_ID": "airplane_id",
+            },
+            auto_date=True,
+        )
+    except:
+        return {"msg": "invalid field"}, 422
 
     if body == False:
         return {"msg": "missing field"}, 422
@@ -156,15 +162,18 @@ def create_flights():
 
 @flights_api.route("/status", methods=["GET"])
 def get_flights_status():
-    params = utility.convertParams(
-        request.args,
-        {
-            "airline_name": "airline_name",
-            "flight_number": "flight_number",
-            "departure_date_time": "departure_date_time",
-        },
-        auto_date=True,
-    )
+    try:
+        params = utility.convertParams(
+            request.args,
+            {
+                "airline_name": "airline_name",
+                "flight_number": "flight_number",
+                "departure_date_time": "departure_date_time",
+            },
+            auto_date=True,
+        )
+    except:
+        return {"msg": "invalid field"}, 422
 
     if params == False:
         return {"msg": "missing field"}, 422
@@ -219,16 +228,19 @@ def get_flights_status():
 @flights_api.route("/status", methods=["POST"])
 @jwt_required(locations="cookies")
 def update_flights_status():
-    body = utility.convertBody(
-        json.loads(request.data.decode("UTF-8")),
-        {
-            "status": "status",
-            "airline_name": "airline_name",
-            "flight_number": "flight_number",
-            "departure_date_time": "departure_date_time",
-        },
-        auto_date=True,
-    )
+    try:
+        body = utility.convertBody(
+            json.loads(request.data.decode("UTF-8")),
+            {
+                "status": "status",
+                "airline_name": "airline_name",
+                "flight_number": "flight_number",
+                "departure_date_time": "departure_date_time",
+            },
+            auto_date=True,
+        )
+    except:
+        return {"msg": "invalid field"}, 422
 
     if body == False:
         return {"msg": "missing field"}, 422
@@ -427,21 +439,24 @@ def get_future_flights():
 @flights_api.route("/schedule", methods=["GET"])
 @jwt_required(locations="cookies")
 def get_scheduled_flights():
-    params = utility.convertParams(
-        request.args,
-        {
-            "email": "email",
-            "type": "type",
-            "start_date?": "start_date",
-            "end_date?": "end_date",
-            "destination_city?": "destination_city",
-            "destination_airport?": "destination_airport",
-            "source_city?": "source_city",
-            "source_airport?": "source_airport",
-            "airline?": "airline",
-        },
-        auto_date=True,
-    )
+    try:
+        params = utility.convertParams(
+            request.args,
+            {
+                "email": "email",
+                "type": "type",
+                "start_date?": "start_date",
+                "end_date?": "end_date",
+                "destination_city?": "destination_city",
+                "destination_airport?": "destination_airport",
+                "source_city?": "source_city",
+                "source_airport?": "source_airport",
+                "airline?": "airline",
+            },
+            auto_date=True,
+        )
+    except:
+        return {"msg": "invalid field"}, 422
 
     if params == False:
         return {"msg": "missing field"}, 422

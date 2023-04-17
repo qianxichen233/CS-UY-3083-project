@@ -153,11 +153,14 @@ def get_customer_info():
 @customers_api.route("/all", methods=["GET"])
 @jwt_required(locations="cookies")
 def get_customers():
-    params = utility.convertParams(
-        request.args,
-        {"airline": "airline", "flight_number": "flight_number", "departure_date_time": "departure_date_time"},
-        auto_date=True,
-    )
+    try:
+        params = utility.convertParams(
+            request.args,
+            {"airline": "airline", "flight_number": "flight_number", "departure_date_time": "departure_date_time"},
+            auto_date=True,
+        )
+    except:
+        return {"msg": "invalid field"}, 422
 
     if params == False:
         return {"msg": "missing field"}, 422
@@ -243,11 +246,14 @@ def get_customers():
 @customers_api.route("/frequent", methods=["GET"])
 @jwt_required(locations="cookies")
 def get_frequent_customers():
-    params = utility.convertParams(
-        request.args,
-        {"airline": "airline", "start_month": "start_date", "end_month": "end_date"},
-        auto_date=True,
-    )
+    try:
+        params = utility.convertParams(
+            request.args,
+            {"airline": "airline", "start_month": "start_date", "end_month": "end_date"},
+            auto_date=True,
+        )
+    except:
+        return {"msg": "invalid field"}, 422
 
     if params == False:
         return {"msg": "missing field"}, 422

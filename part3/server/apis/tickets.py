@@ -72,15 +72,18 @@ def get_current_price(cursor, airline, flight_number, departure_date_time):
 @tickets_api.route("/", methods=["GET"])
 @jwt_required(locations="cookies")
 def get_tickets():
-    params = utility.convertParams(
-        request.args,
-        {
-            "airline": "airline",
-            "start_month": "start_date",
-            "end_month": "end_date",
-        },
-        auto_date=True,
-    )
+    try:
+        params = utility.convertParams(
+            request.args,
+            {
+                "airline": "airline",
+                "start_month": "start_date",
+                "end_month": "end_date",
+            },
+            auto_date=True,
+        )
+    except:
+        return {"msg": "invalid field"}, 422
 
     if params == False:
         return {"msg": "missing field"}, 422
@@ -136,15 +139,18 @@ def get_tickets():
 
 @tickets_api.route("/price", methods=["GET"])
 def get_ticket_price():
-    params = utility.convertParams(
-        request.args,
-        {
-            "airline_name": "airline_name",
-            "flight_number": "flight_number",
-            "departure_date_time": "departure_date_time",
-        },
-        auto_date=True,
-    )
+    try:
+        params = utility.convertParams(
+            request.args,
+            {
+                "airline_name": "airline_name",
+                "flight_number": "flight_number",
+                "departure_date_time": "departure_date_time",
+            },
+            auto_date=True,
+        )
+    except:
+        return {"msg": "invalid field"}, 422
 
     if params == False:
         return {"msg": "missing field"}, 422
@@ -182,27 +188,30 @@ def get_ticket_price():
 @tickets_api.route("/register", methods=["PUT"])
 @jwt_required(locations="cookies")
 def create_new_ticket():
-    body = utility.convertBody(
-        json.loads(request.data.decode("UTF-8")),
-        {
-            "type": "type",
-            "email": "email",
-            "card_type": "card_type",
-            "card_number": "card_number",
-            "card_name": "card_name",
-            "first_name": "first_name",
-            "last_name": "last_name",
-            "date_of_birth": "date_of_birth",
-            "expiration_date": "expiration_date",
-            "airline_name_to": "to.airline_name",
-            "flight_number_to": "to.flight_number",
-            "departure_date_time_to": "to.departure_date_time",
-            "airline_name_back?": "back.airline_name",
-            "flight_number_back?": "back.flight_number",
-            "departure_date_time_back?": "back.departure_date_time",
-        },
-        auto_date=True,
-    )
+    try:
+        body = utility.convertBody(
+            json.loads(request.data.decode("UTF-8")),
+            {
+                "type": "type",
+                "email": "email",
+                "card_type": "card_type",
+                "card_number": "card_number",
+                "card_name": "card_name",
+                "first_name": "first_name",
+                "last_name": "last_name",
+                "date_of_birth": "date_of_birth",
+                "expiration_date": "expiration_date",
+                "airline_name_to": "to.airline_name",
+                "flight_number_to": "to.flight_number",
+                "departure_date_time_to": "to.departure_date_time",
+                "airline_name_back?": "back.airline_name",
+                "flight_number_back?": "back.flight_number",
+                "departure_date_time_back?": "back.departure_date_time",
+            },
+            auto_date=True,
+        )
+    except:
+        return {"msg": "invalid field"}, 422
 
     if body == False:
         return {"msg": "missing field"}, 422

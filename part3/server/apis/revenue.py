@@ -9,15 +9,18 @@ revenue_api = Blueprint("revenue_api", __name__)
 @revenue_api.route("/", methods=["GET"])
 @jwt_required(locations="cookies")
 def get_revenue():
-    params = utility.convertParams(
-        request.args,
-        {
-            "airline": "airline",
-            "start_month": "start_date",
-            "end_month": "end_date",
-        },
-        auto_date=True,
-    )
+    try:
+        params = utility.convertParams(
+            request.args,
+            {
+                "airline": "airline",
+                "start_month": "start_date",
+                "end_month": "end_date",
+            },
+            auto_date=True,
+        )
+    except:
+        return {"msg": "invalid field"}, 422
 
     if params == False:
         return {"msg": "missing field"}, 422

@@ -9,15 +9,18 @@ spending_api = Blueprint("spending_api", __name__)
 @spending_api.route("/", methods=["GET"])
 @jwt_required(locations="cookies")
 def get_spending():
-    params = utility.convertParams(
-        request.args,
-        {
-            "email": "email",
-            "from_month": "from",
-            "to_month": "to",
-        },
-        auto_date=True,
-    )
+    try:
+        params = utility.convertParams(
+            request.args,
+            {
+                "email": "email",
+                "from_month": "from",
+                "to_month": "to",
+            },
+            auto_date=True,
+        )
+    except:
+        return {"msg": "invalid field"}, 422
 
     if params == False:
         return {"msg": "missing field"}, 422
