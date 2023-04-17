@@ -29,7 +29,7 @@ def create_airplanes():
     if identity["type"] != "staff":
         return {"msg": "Staff Only"}, 403
 
-    if body["seat_number"] <= 0:
+    if int(body["seat_number"]) <= 0:
         return {"msg": "seat number must be positive"}, 422
 
     with getdb() as mydb:
