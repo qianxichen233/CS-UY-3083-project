@@ -1,0 +1,9 @@
+Qianxi Chen:
+1. Implementing the frontend
+2. Set up backend
+3. Develop part of apis
+
+Xiaoyi Yan:
+1. Develop part of apis
+2. Test the app and report bugs if found
+3. Write use cases documentation

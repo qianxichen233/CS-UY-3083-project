@@ -11,15 +11,18 @@ comments_api = Blueprint("comments_api", __name__)
 @comments_api.route("/", methods=["GET"])
 @jwt_required(locations="cookies")
 def get_comments():
-    params = utility.convertParams(
-        request.args,
-        {
-            "airline_name": "airline_name",
-            "flight_number": "flight_number",
-            "departure_date_time": "departure_date_time",
-        },
-        auto_date=True,
-    )
+    try:
+        params = utility.convertParams(
+            request.args,
+            {
+                "airline_name": "airline_name",
+                "flight_number": "flight_number",
+                "departure_date_time": "departure_date_time",
+            },
+            auto_date=True,
+        )
+    except:
+        return {"msg": "invalid field"}, 422
 
     if params == False:
         return {"msg": "Missing Field"}, 422
@@ -64,19 +67,21 @@ def get_comments():
 @comments_api.route("/", methods=["PUT"])
 @jwt_required(locations="cookies")
 def make_comments():
-    print(json.loads(request.data.decode("UTF-8")))
-    body = utility.convertBody(
-        json.loads(request.data.decode("UTF-8")),
-        {
-            "email": "email",
-            "airline_name": "airline_name",
-            "flight_number": "flight_number",
-            "departure_date_time": "departure_date_time",
-            "rating": "rating",
-            "comment": "comment",
-        },
-        auto_date=True,
-    )
+    try:
+        body = utility.convertBody(
+            json.loads(request.data.decode("UTF-8")),
+            {
+                "email": "email",
+                "airline_name": "airline_name",
+                "flight_number": "flight_number",
+                "departure_date_time": "departure_date_time",
+                "rating": "rating",
+                "comment": "comment",
+            },
+            auto_date=True,
+        )
+    except:
+        return {"msg": "invalid field"}, 422
 
     if body == False:
         return {"msg": "missing field"}, 422
