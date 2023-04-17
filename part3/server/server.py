@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from datetime import timedelta
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
@@ -37,7 +37,7 @@ config = {
     ],
 }
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="../client/build", static_folder="../client/build", static_url_path="/")
 CORS(app, resources={r"/*": {"origins": config["ORIGINS"]}}, supports_credentials=True)
 
 app.config["JWT_SECRET_KEY"] = os.getenv("jwt_secret")
@@ -47,6 +47,12 @@ app.config["JWT_COOKIE_CSRF_PROTECT"] = True
 app.config["JWT_CSRF_CHECK_FORM"] = True
 
 jwt = JWTManager(app)
+
+
+@app.route("/", methods=["GET"])
+def home():
+    return render_template("index.html")
+
 
 app.register_blueprint(airplane_api, url_prefix="/api/airplane")
 app.register_blueprint(airport_api, url_prefix="/api/airport")
