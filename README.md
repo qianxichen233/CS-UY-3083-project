@@ -1,4 +1,5 @@
 
+
 # CS-UY 3083 Air Ticket Web System
 ---
 ### Project Description
@@ -24,12 +25,18 @@ The project implemented a full-stack web system used for air ticket reservation,
 	- View ticket reports, displayed with beautiful charts
 	- View earned revenue in the past month and year
 ### Project Showcase
-![customer login](https://github.com/qianxichen233/CS-UY-3083-project/blob/main/main/part3/screenshots/customer-login.png?raw=true)
-![customer purchase ticket](https://github.com/qianxichen233/CS-UY-3083-project/blob/main/main/part3/screenshots/customer-purchase.png?raw=true)
-![customer check my flights](https://github.com/qianxichen233/CS-UY-3083-project/blob/main/main/part3/screenshots/customer-myflight.png?raw=true)
-![staff change flight status](https://github.com/qianxichen233/CS-UY-3083-project/blob/main/main/part3/screenshots/staff-changestatus.png?raw=true)
-![staff's panel](https://github.com/qianxichen233/CS-UY-3083-project/blob/main/main/part3/screenshots/staff-panel.png?raw=true)
-![staff ticket report](https://github.com/qianxichen233/CS-UY-3083-project/blob/main/main/part3/screenshots/staff-report.png?raw=true)
+Customer Login:
+![customer login](https://github.com/qianxichen233/CS-UY-3083-project/blob/main/part3/screenshots/customer-login.png?raw=true)
+Customer Check Out:
+![customer purchase ticket](https://github.com/qianxichen233/CS-UY-3083-project/blob/main/part3/screenshots/customer-purchase.png?raw=true)
+Customer Check My Flights:
+![customer check my flights](https://github.com/qianxichen233/CS-UY-3083-project/blob/main/part3/screenshots/customer-myflight.png?raw=true)
+Staff Change Flight Status:
+![staff change flight status](https://github.com/qianxichen233/CS-UY-3083-project/blob/main/part3/screenshots/staff-changestatus.png?raw=true)
+Staff Panel:
+![staff's panel](https://github.com/qianxichen233/CS-UY-3083-project/blob/main/part3/screenshots/staff-panel.png?raw=true)
+Staff Ticket Report:
+![staff ticket report](https://github.com/qianxichen233/CS-UY-3083-project/blob/main/part3/screenshots/staff-report.png?raw=true)
 ### Tech Stack
 1. Frontend: Reactjs
 2. Backend: Flask
