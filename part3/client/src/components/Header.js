@@ -21,7 +21,7 @@ const Header = (props) => {
             }}
         >
             <div className={styles.name} onClick={() => navigate("/")}>
-                <span>RTicket</span>
+                <span>AirLink</span>
             </div>
             <div className={styles.bars}>
                 <Link to="/">

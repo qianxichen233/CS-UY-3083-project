@@ -398,6 +398,7 @@ def get_future_flights():
                     WHERE airplane.ID = airplane_ID
                         AND arrival.code = arrival_airport_code
                         AND departure.code = departure_airport_code
+                        AND departure_date_time >= %(now)s
                         {selector_back}
             """.format(
                 selector_back=selector_back
