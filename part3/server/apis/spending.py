@@ -38,7 +38,7 @@ def get_spending():
         cursor.execute(
             """
                 SELECT EXTRACT(YEAR_MONTH FROM ticket.purchased_date_time) AS yearmonth,
-                    Sum(calculated_price) AS count
+                    SUM(calculated_price) AS count
                 FROM ticket
                 WHERE email = %(email)s
                 GROUP BY yearmonth

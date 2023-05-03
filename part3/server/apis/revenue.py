@@ -35,15 +35,14 @@ def get_revenue():
         if utility.getStaff(cursor, get_jwt_identity()["username"], "airline_name")[0] != params["airline"]:
             return {"msg": "airline staff is not authorized to get other airline's information "}, 403
 
+        print(params)
         cursor.execute(
             """
-                    SELECT EXTRACT(YEAR_MONTH FROM ticket.purchased_date_time) AS yearmonth,
-                        SUM(calculated_price) AS sum
+                    SELECT SUM(calculated_price) AS sum
                     FROM ticket
                     WHERE airline_name = %(airline)s
-                    HAVING
-                        yearmonth >= %(start_month)s
-                        AND yearmonth <= %(end_month)s
+                        AND EXTRACT(YEAR_MONTH from purchased_date_time) >= %(start_month)s
+                        AND EXTRACT(YEAR_MONTH from purchased_date_time) <= %(end_month)s
                 """,
             params,
         )
@@ -51,9 +50,13 @@ def get_revenue():
         result = cursor.fetchall()
         cursor.close()
 
+        print(result)
+
         if len(result) == 0:
             response = {"revenue": 0}
+        elif result[0][0] == None:
+            response = {"revenue": 0}
         else:
-            response = {"revenue": result[0][1]}
+            response = {"revenue": result[0][0]}
 
     return response
