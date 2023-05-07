@@ -168,7 +168,7 @@ INSERT
 SET
     NEW.ID = (
         SELECT
-            IFNULL(MAX(ID), -1) + 1
+            IFNULL(MAX(ID), 0) + 1
         FROM
             airplane
         WHERE
